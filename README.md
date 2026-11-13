@@ -17,6 +17,7 @@ A shopping cart REST API built with Symfony, **without API Platform**. It demons
 | Composer | 2 |
 | Doctrine | ORM 3, DBAL 4, Migrations |
 | Database | SQLite 3 |
+| Messaging | Symfony Messenger with the Doctrine transport |
 
 | PHPUnit | 13 |
 | PHPStan | 2 (level 8, with the Symfony extension) |
@@ -30,8 +31,8 @@ _Further tools are added here as they are introduced._
 Requirements: Docker with Docker Compose, and `make`. PHP and Composer run only inside the container.
 
 ```sh
-make setup     # build the image, start the containers, install the dependencies, reset the databases
-make db-reset  # drop all tables and run the migrations again (dev and test)
+make setup     # build the image, install the dependencies, reset the databases, start the containers
+make db-reset  # drop all tables, run the migrations again (dev and test), restart the worker
 make help      # list all targets
 ```
 
@@ -46,6 +47,8 @@ make qa      # everything below, fails fast
 `make qa` runs, in this order: `composer audit`, the code style check, PHPStan, Deptrac and PHPUnit. Deptrac runs twice: `deptrac.yaml` checks the layer direction (Domain ← Application ← Infrastructure, vendor code only in Infrastructure), `deptrac-contexts.php` checks the boundaries between the bounded contexts.
 
 The database is SQLite, one file per environment: `var/data_dev.db` and `var/data_test.db`.
+
+Two containers run: `php` serves the API, `worker` consumes the domain events from a queue table in the same database (`docker compose logs worker`). In the test environment events are handled inline, so the tests need no worker.
 
 _Fixtures, the OpenAPI checks and Behat follow in the next steps._
 

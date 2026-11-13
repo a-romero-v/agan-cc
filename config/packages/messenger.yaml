@@ -1,0 +1,19 @@
+framework:
+    messenger:
+        transports:
+            # Messenger carries domain events only, never commands or queries.
+            # The DSN decides how they are delivered: doctrine://default by default
+            # (same database, so publishing inside the transaction acts as an outbox),
+            # sync:// in the test environment.
+            domain_events:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+
+        # Routing by the DomainEvent marker interface is added together with the first event.
+        routing: {}
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                # Handlers run inline during the request; no worker is needed for the tests.
+                domain_events: 'sync://'

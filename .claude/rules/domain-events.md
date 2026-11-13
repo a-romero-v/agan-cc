@@ -9,6 +9,8 @@ One port, one adapter. Kept deliberately small: there is a single consumer (Inve
 - Routing is by interface: `App\Shared\Domain\DomainEvent` → transport `domain_events`.
 - The transport is set only by `MESSENGER_TRANSPORT_DSN`: `sync://` in test, `doctrine://default` by default. AMQP works without code changes.
 - Messenger is used **only** for domain events, never for commands or queries.
+- The queue table `messenger_messages` is created by `messenger:setup-transports`, which is part of `app:db:reset`.
+- Verified at scaffold: web requests and the worker share the SQLite file without lock errors. Three concurrent senders (150 transactions each, publishing inside the transaction) against a running worker: 450 sent, 450 handled, no "database is locked". `BEGIN IMMEDIATE` plus the busy timeout make writers queue up.
 
 ## Handlers
 - An event handler is a pure-PHP class in `Application/EventHandler` with `__invoke(ConcreteEvent $event)`. One handler per event type.

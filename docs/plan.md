@@ -10,7 +10,7 @@ Progress tracker. Each step ends with a green `make qa` and one or more commits.
 - [x] QA tooling: PHP-CS-Fixer, PHPStan level 8, Deptrac (layers and contexts), PHPUnit, Composer scripts (`app:*`). `app:qa` grows with the project: OpenAPI checks join in M2, Behat in M3
 - [x] Doctrine with SQLite, migrations, DB reset command
 - [x] `TransactionInterface` with `BEGIN IMMEDIATE` and `busy_timeout`, integration test for the write lock
-- [ ] Messenger transport `domain_events`, `worker` service; manual check of the worker against the SQLite lock
+- [x] Messenger transport `domain_events`, `worker` service; manual check of the worker against the SQLite lock (result in `.claude/rules/domain-events.md`)
 - [ ] GitHub Actions workflow running `make qa`
 
 Items marked "verify at scaffold" in `.claude/rules/` are verified in the milestone that builds them; M1 covers the database and Docker ones.

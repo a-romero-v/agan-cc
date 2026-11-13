@@ -1,13 +1,28 @@
+x-app: &app
+  build:
+    context: .
+    dockerfile: docker/php/Dockerfile
+  volumes:
+    - .:/app
+  environment: &app-environment
+    # One SQLite file per environment: var/data_dev.db and var/data_test.db.
+    DATABASE_URL: "sqlite:///%kernel.project_dir%/var/data_%kernel.environment%.db"
+    # Domain events go to a table in the same database and are consumed by the worker.
+    # auto_setup=0: the table is created by app:db:reset, never implicitly at runtime.
+    MESSENGER_TRANSPORT_DSN: "doctrine://default?auto_setup=0"
+
 services:
   php:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
+    <<: *app
     ports:
       - "${APP_PORT:-8000}:8000"
-    volumes:
-      - .:/app
     environment:
+      <<: *app-environment
       PHP_CLI_SERVER_WORKERS: 4
-      # One SQLite file per environment: var/data_dev.db and var/data_test.db.
-      DATABASE_URL: "sqlite:///%kernel.project_dir%/var/data_%kernel.environment%.db"
+
+  # Consumes the domain events. It exits after an hour or at 128 MB and is restarted,
+  # which also picks up code changes. Restart it by hand after changing a handler.
+  worker:
+    <<: *app
+    command: ["php", "bin/console", "messenger:consume", "domain_events", "-vv", "--time-limit=3600", "--memory-limit=128M"]
+    restart: unless-stopped

@@ -10,12 +10,13 @@ EXEC    = $(COMPOSE) exec php
 help: ## List the available targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  %-10s %s\n", $$1, $$2}'
 
-setup: ## Build the image, start the containers, install the dependencies, reset the dev and test databases
+setup: ## Build the image, install the dependencies, reset the dev and test databases, start the containers
 	$(COMPOSE) build
-	$(COMPOSE) up -d --wait
-	$(EXEC) composer install
+	$(COMPOSE) run --rm --no-deps php composer install
+	$(COMPOSE) up -d --wait php
 	$(EXEC) composer app:db:reset
 	$(EXEC) composer app:db:reset:test
+	$(COMPOSE) up -d --wait
 
 up: ## Start the containers
 	$(COMPOSE) up -d --wait
@@ -26,9 +27,10 @@ down: ## Stop the containers
 shell: ## Open a shell in the php container
 	$(EXEC) sh
 
-db-reset: ## Reset the dev and test databases
+db-reset: ## Reset the dev and test databases and restart the worker
 	$(EXEC) composer app:db:reset
 	$(EXEC) composer app:db:reset:test
+	$(COMPOSE) restart worker
 
 qa: ## Run all checks (must be green before a task counts as done)
 	$(EXEC) composer app:qa

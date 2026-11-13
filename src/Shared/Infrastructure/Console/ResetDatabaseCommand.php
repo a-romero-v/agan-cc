@@ -22,13 +22,15 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * queue). This works on every platform; SQLite creates the database file on the
  * first connection.
  */
-#[AsCommand(name: 'app:db:reset', description: 'Drop all tables and run the migrations (dev and test only)')]
+#[AsCommand(name: 'app:db:reset', description: 'Drop all tables, run the migrations and set up the message transports (dev and test only)')]
 final class ResetDatabaseCommand extends Command
 {
     private const array ALLOWED_ENVIRONMENTS = ['dev', 'test'];
 
     private const array STEPS = [
         'doctrine:migrations:migrate' => ['--allow-no-migration' => true],
+        // Re-creates the message queue table, so a running worker finds it again.
+        'messenger:setup-transports' => [],
     ];
 
     public function __construct(
