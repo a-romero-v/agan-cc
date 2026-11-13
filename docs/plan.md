@@ -26,6 +26,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [ ] `ClockInterface`, ID generator, `TransactionInterface`, `AggregateRoot`, `DomainEvent`
 - [ ] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`
 - [ ] Response hardening (`nosniff`), 415 and 400 handling
+- [ ] Architecture test for the structure and naming conventions (`tests/Unit/Architecture`), verified once with deliberately misplaced classes
 
 ## M4 – Product
 - [ ] `Product`, `Money`, `TaxRate`, repository, fixtures
@@ -33,16 +34,16 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 
 ## M5 – Cart core for guests (AC1–AC4, guest part of AC5)
 - [ ] `Cart` aggregate, `CartItem`, `Quantity`, `CartOwner`, cart version, domain events
-- [ ] Persistence: records, mapper, repository, optimistic lock, in-memory repository
+- [ ] Persistence: records, mapper, repository, optimistic lock with an integration test (stale version fails with `Conflict`), in-memory repository
 - [ ] Ports `ProductCatalogInterface` and `StockReservationInterface` (always-succeeding stub)
-- [ ] `POST /carts` (guest) with cart token, cart-token authenticator, `CartVoter`, route-coverage test, 404 for foreign carts (R6)
+- [ ] `POST /carts` (guest) with cart token, cart-token authenticator, `CartVoter`, route-coverage test (integration suite), 404 for foreign carts (R6)
 - [ ] View cart with totals (AC4, R8)
 - [ ] Add item (AC1), remove item (AC2), change quantity (AC3)
 
 ## M6 – Registered users and rate limits (AC5, AC7)
 - [ ] `User` context, `POST /auth/login` (JWT), uniform login failure
 - [ ] JWT authenticator, mutually exclusive with the cart-token authenticator
-- [ ] One cart per user (R7), integration test for concurrent `POST /carts`
+- [ ] One cart per user (R7): Behat for the sequential case, integration tests with two processes and for the unique-violation safety net
 - [ ] Rate limiters: login, guest cart creation, failed token authentication (AC7)
 
 **Deliverable milestone:** after M6 the brief is fully covered and the README is complete for this state.
@@ -52,7 +53,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [ ] Synchronous reserve behind the Cart port (R9), `InsufficientStockException`
 - [ ] Asynchronous release through domain events, idempotent and version-aware (R10)
 - [ ] TTL, re-reserve and `reserved: false` in the cart view (R11–R13)
-- [ ] Integration tests: concurrency (R14), real Doctrine transport with worker
+- [ ] Integration tests: concurrency with two processes (R14), real Doctrine transport with `messenger:consume --limit=1`
 - [ ] Optional: `app:inventory:purge-expired`
 
 ## M8 – Wrap-up

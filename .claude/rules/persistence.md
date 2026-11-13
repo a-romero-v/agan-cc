@@ -17,7 +17,7 @@ The persistence layer is swappable.
 - Anything DB-specific (locking, upserts) stays behind a port, with one implementation per DB if needed.
 - Migrations are platform-specific and the only thing regenerated when switching DBs.
 - No foreign keys and no SQL joins across context boundaries. Read models that need data from another context go through a port (see `CLAUDE.md`, cart view).
-- Optimistic lock on the cart: `save()` fails with a domain exception (`Conflict`) when the stored version is not the one that was loaded. The cart is always loaded **inside** the transaction block. SQLite's `BEGIN IMMEDIATE` already prevents lost updates; PostgreSQL would not, so the lock keeps the DB switch inside Infrastructure. Verify the mechanism at scaffold (`#[ORM\Version]` or an explicit comparison, because the domain owns the counter).
+- Optimistic lock on the cart: `save()` fails with a domain exception (`Conflict`) when the stored version is not the one that was loaded. The cart is always loaded **inside** the transaction block. SQLite's `BEGIN IMMEDIATE` already prevents lost updates; PostgreSQL would not, so the lock keeps the DB switch inside Infrastructure. The mechanism is decided when the cart repository is built (`#[ORM\Version]` or an explicit comparison, because the domain owns the counter) and covered by an integration test.
 - Every repository port has an in-memory implementation for unit tests.
 - DBs: SQLite, `var/data_dev.db` (dev) and `var/data_test.db` (test). `DATABASE_URL` is set in `compose.yaml`.
 - SQLite enforces foreign keys only when each connection enables them. DBAL's `EnableForeignKeys` middleware is registered in `config/services.yaml`; `DatabaseSetupTest` guards it.

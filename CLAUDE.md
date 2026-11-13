@@ -5,7 +5,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 
 Coding challenge: a shopping cart REST API in Symfony 8.1 / PHP 8.5. It demonstrates hexagonal architecture, DDD, CQRS and event-driven design. Code quality matters more than speed.
-
 - This file describes the **target state**. The scaffold (Makefile, Composer scripts, Deptrac, `src/`) is built step by step, so some commands below may not exist yet.
 - Business rules (R1…), acceptance criteria (AC1…) and the Ubiquitous Language are in `SPEC.md`. If a task contradicts `SPEC.md` or the API contract, **stop and ask**.
 - Order: core cart for guests (AC1–AC4), then registered users and rate limits (AC5, AC7), then stock reservation (AC6). Cart routes are never unprotected: the cart-token authenticator and `CartVoter` are built together with `POST /carts`, before the first `{cartId}` route.
@@ -68,6 +67,14 @@ Cross-context adapters: the adapters live in `Cart/Infrastructure` and call the 
 
 API-first: `docs/openapi.yaml` is generated from `api-contract/`. Change the fragments **before** implementing, then `composer app:openapi:build`. Layout as in the reference: `api-contract/base.yaml` (info, servers, security schemes), `api-contract/paths/<resource>/<operation>.yaml` and `api-contract/schemas/<Name>.yaml`. The console commands `app:openapi:build` and `app:openapi:check-sync` and `bin/validate-openapi` are taken from the reference. The reference's `ErrorResponse` schema is replaced by `ProblemDetails`. Behat scenarios with JSON bodies must use `the request body matches the OpenAPI spec` and `the response matches the OpenAPI spec`.
 
+### Structure and naming (as in the reference)
+- One folder per use case: `Application/Command/<Name>/` with `<Name>Command` and `<Name>Handler`; `Application/Query/<Name>/` with `<Name>Query` and `<Name>Handler`.
+- Read models are `*View` classes in `Application/Query/ReadModel/`.
+- Event handlers live in `Application/EventHandler/` and end with `Handler`.
+- Ports of the domain live in `<Context>/Domain/Port/`. Repository interfaces sit next to their aggregate. Application-level ports that are not domain concepts (`TransactionInterface`, the buses) live in `Shared/Application`.
+- Domain events in `Domain/Event/`, exceptions in `Domain/Exception/`.
+- Controllers and request DTOs in `Infrastructure/Http/`; records, mappers and repositories in `Infrastructure/Persistence/`; security adapters in `Infrastructure/Security/`.
+
 ### Detailed design
 The detailed rules live in `.claude/rules/` and are loaded automatically: `domain-events.md`, `inventory.md`, `persistence.md`, `errors.md`, `security.md`.
 
@@ -95,7 +102,19 @@ Security is a first-class requirement, on a par with the business rules. Details
 ## Tests
 - `tests/Unit/` mirrors `src/`, no DB or HTTP. Use in-memory port implementations instead of mocking domain classes. Every repository port has one. (Deviation: the reference mocks its repository ports.)
 - `features/` + `tests/Behat/` (`ApiContext`, `DatabaseContext`): full HTTP round-trips against the test DB. Every AC in `SPEC.md` has a scenario tagged with its ID (e.g. `@AC3`). AC bullets that Behat cannot exercise (concurrent requests, delayed or reordered events) are covered by integration or unit tests instead.
-- `tests/Integration/`: PHPUnit against the real test DB, part of `composer app:test`. Covers concurrency (R14), concurrent `POST /carts` of one user (R7) and the real Doctrine transport (request, `messenger:consume --limit=1`, assert).
+- `tests/Unit/Architecture/`: one test scans `src/` and enforces the conventions from "Structure and naming" that can be decided mechanically: suffixes (`*Command`, `*Query`, `*Handler`, `*View`), read models `final readonly`, only interfaces in `Domain/Port/`, `*Record` only in `Infrastructure/Persistence/`, controllers only in `Infrastructure/Http/`, all classes `final` (exceptions listed in the test). Deptrac checks dependencies, not names or locations. A new convention gets a check here, not just a sentence.
+- Behat style (as in the reference):
+  - Features live in `features/<context>/`, one focused feature per file.
+  - The endpoint is visible in the scenario (`When I send a POST request to "/carts"`); authentication and data setup are abstracted into steps.
+  - Assert the full JSON response as a snapshot, not single fields; use the `@any` placeholder for generated values (IDs, tokens, timestamps).
+  - Failure cases assert the whole Problem Details response, including `errorCode`.
+- `tests/Integration/`: PHPUnit against the real test DB, without HTTP, part of `composer app:test`. "Integration" names the technique, not the importance. Planned tests:
+  - Concurrency (R7, R14): Behat runs requests one after another in a single process, so it cannot produce a race. These tests work at handler level with **two PHP processes** running the same command at the same time, then assert the outcome (one cart for the user; exactly one of two carts gets the last item).
+  - Safety net for R7: force a second insert past the handler's check and assert that the unique violation becomes the domain exception and the handler returns the existing cart. Deterministic; this is the path PostgreSQL would rely on.
+  - Optimistic lock on the cart: `save()` with a stale version fails with the `Conflict` exception.
+  - Real Doctrine transport: request, `messenger:consume --limit=1`, assert.
+  - Route coverage: every route with `{cartId}` carries `#[IsGranted]` (needs the router, see `.claude/rules/security.md`).
+  - The sequential behaviour of the same rules (a second `POST /carts` returns the same cart with 200) stays a Behat scenario.
 - Shared test fixtures: `tests/Shared/Fixture`. Dev fixtures: `src/Shared/Infrastructure/DataFixtures`.
 
 ## Git and commits
