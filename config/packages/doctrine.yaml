@@ -3,6 +3,12 @@ doctrine:
         # SQLite; the file name contains the environment (var/data_dev.db, var/data_test.db).
         url: '%env(resolve:DATABASE_URL)%'
         profiling_collect_backtrace: '%kernel.debug%'
+        options:
+            # Every transaction starts as BEGIN IMMEDIATE: the write lock is taken up front, so
+            # check-then-write sequences cannot interleave and a later lock upgrade cannot fail (R14).
+            !php/const Pdo\Sqlite::ATTR_TRANSACTION_MODE: !php/const Pdo\Sqlite::TRANSACTION_MODE_IMMEDIATE
+            # Seconds to wait for the write lock before failing with "database is locked".
+            !php/const PDO::ATTR_TIMEOUT: 5
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore

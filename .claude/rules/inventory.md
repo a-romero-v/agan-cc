@@ -35,7 +35,7 @@ The port has two sides: the modifying calls used by the command handlers and a r
 ## Concurrency (R14)
 - Check-and-reserve runs under a write lock. Never read-then-write without the lock.
 - Where the lock is taken depends on the DB:
-  - SQLite: every transaction opened through `TransactionInterface` starts as `BEGIN IMMEDIATE`. This is a connection-level setting in Shared Infrastructure, not in the Inventory adapter: the Cart handler has already opened the transaction and read the cart, and upgrading the lock afterwards can fail with `SQLITE_BUSY`. Add a `busy_timeout`, because the Messenger worker (Doctrine transport, same file) competes for the lock. Verify the mechanism at scaffold (PDO transaction mode or a DBAL middleware).
+  - SQLite: every transaction opened through `TransactionInterface` starts as `BEGIN IMMEDIATE`. This is a connection-level setting in Shared Infrastructure, not in the Inventory adapter: the Cart handler has already opened the transaction and read the cart, and upgrading the lock afterwards can fail with `SQLITE_BUSY`. A `busy_timeout` of 5 seconds is set, because the Messenger worker (Doctrine transport, same file) competes for the lock. Mechanism (verified at scaffold): the PDO driver options `Pdo\Sqlite::ATTR_TRANSACTION_MODE` (PHP 8.5) and `PDO::ATTR_TIMEOUT` in `config/packages/doctrine.yaml`; no middleware needed. It applies to every transaction on the connection. `DoctrineTransactionTest` guards it.
   - PostgreSQL would use `SELECT … FOR UPDATE` on `stock_item` inside the Inventory adapter.
 - Covered by an integration test against the real DB.
 

@@ -55,7 +55,8 @@ Layer rules (enforced by Deptrac):
 - **Application**: depends only on Domain. Single-responsibility handlers in `Application/Command` and `Application/Query`; pure-PHP event handlers in `Application/EventHandler`, registered as Messenger handlers in `config/services.yaml` (no wrapper classes).
 - **Infrastructure**: the only layer that may import Symfony or Doctrine.
 - Contexts never import each other's Domain. Two exceptions: `*/Domain/Event` may be imported by other contexts' Application event handlers, and `*/Domain/Exception` by cross-context adapters (see below). Cross-context calls go through a port of the calling context (e.g. `Cart` → `ProductCatalogInterface`, `StockReservationInterface`).
-- Time, IDs and tokens come from ports (`ClockInterface`, generators). Domain code never calls `new \DateTimeImmutable()` or imports `symfony/uid`. Transactions go through `TransactionInterface`.
+- Time, IDs and tokens come from ports (`ClockInterface`, generators). Domain code never calls `new \DateTimeImmutable()` or imports `symfony/uid`. Transactions go through `TransactionInterface` (`Shared/Application`; adapter `DoctrineTransaction`).
+- After changing files in `config/`, clear the test cache (`composer app:test:clear:cache`) before trusting a test result; the test environment does not always notice.
 
 Domain model: `Cart` is the aggregate root; items change only through it (R2, R3). `Product` holds catalogue data, never stock. Value objects (`CartId`, `ProductId`, `Quantity`, `Money`, `TaxRate`) are immutable and self-validating. `Money` = integer cents + currency, never floats.
 

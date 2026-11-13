@@ -66,6 +66,7 @@ Rationale for non-obvious decisions. Entries are added together with the code th
 | Guest cart expiry | Not implemented | Expired reservations already free the stock (R11, R12); the rows are harmless |
 | Foreign cart (R6) | 404, identical to an unknown cart | Does not reveal that a cart exists |
 | Web server | PHP's built-in server (`php -S`) with `PHP_CLI_SERVER_WORKERS`, as in the reference | Enough for a demo and keeps the setup to one image; the workers allow parallel requests. Not for production, where FrankenPHP or PHP-FPM would be used |
+| Write lock (R14) | Every SQLite transaction starts as `BEGIN IMMEDIATE`, with a 5 second busy timeout; set as PDO driver options | The lock is taken before the first read, so check-then-write cannot interleave and no lock upgrade can fail mid-transaction. PostgreSQL would use `SELECT … FOR UPDATE` in the adapter instead |
 | Cart view across contexts | Through ports of the Cart context, no SQL joins across contexts | Keeps the contexts independent and the persistence swappable |
 
 ## Accepted Risks
