@@ -47,6 +47,8 @@ make qa      # everything below, fails fast
 
 `make qa` runs, in this order: `composer audit`, the code style check, PHPStan, Deptrac and PHPUnit. Deptrac runs twice: `deptrac.yaml` checks the layer direction (Domain ← Application ← Infrastructure, vendor code only in Infrastructure), `deptrac-contexts.php` checks the boundaries between the bounded contexts.
 
+GitHub Actions runs the same two commands, `make setup` and `make qa`, on every push and pull request (`.github/workflows/qa.yaml`).
+
 The database is SQLite, one file per environment: `var/data_dev.db` and `var/data_test.db`.
 
 Two containers run: `php` serves the API, `worker` consumes the domain events from a queue table in the same database. Its log is `var/log/domain_events.log`, the general application log is `var/log/dev.log` (both JSON lines); `docker compose logs worker` shows the worker's console output. In the test environment events are handled inline, so the tests need no worker.

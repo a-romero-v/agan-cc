@@ -1,0 +1,31 @@
+name: QA
+
+on:
+  push:
+  pull_request:
+
+# A newer run of the same branch replaces the one in progress.
+concurrency:
+  group: qa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      # The same two commands a developer runs locally; PHP exists only inside the container.
+      - name: Build, install and prepare the databases
+        run: make setup
+
+      - name: Run all checks
+        run: make qa
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --tail 200
