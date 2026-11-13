@@ -15,12 +15,19 @@
         "symfony/yaml": "8.1.*"
     },
     "require-dev": {
+        "deptrac/deptrac": "*",
+        "friendsofphp/php-cs-fixer": "*",
+        "phpstan/extension-installer": "*",
+        "phpstan/phpstan": "*",
+        "phpstan/phpstan-symfony": "*",
+        "phpunit/phpunit": "*"
     },
     "config": {
         "allow-plugins": {
             "php-http/discovery": true,
             "symfony/flex": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "phpstan/extension-installer": true
         },
         "bump-after-update": true,
         "sort-packages": true
@@ -57,6 +64,27 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "app:cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "app:cs:fix": "vendor/bin/php-cs-fixer fix",
+        "app:analyse": [
+            "@php bin/console cache:warmup --env=dev --quiet",
+            "php -d memory_limit=512M vendor/bin/phpstan analyse --no-progress"
+        ],
+        "app:deptrac": [
+            "vendor/bin/deptrac analyse --config-file=deptrac.yaml --no-progress",
+            "vendor/bin/deptrac analyse --config-file=deptrac-contexts.php --no-progress"
+        ],
+        "app:test": "php bin/phpunit",
+        "app:test:unit": "php bin/phpunit --testsuite unit",
+        "app:test:integration": "php bin/phpunit --testsuite integration",
+        "app:test:clear:cache": "@php bin/console cache:clear --env=test",
+        "app:qa": [
+            "@composer audit",
+            "@app:cs:check",
+            "@app:analyse",
+            "@app:deptrac",
+            "@app:test"
         ]
     },
     "conflict": {

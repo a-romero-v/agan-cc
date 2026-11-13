@@ -16,6 +16,11 @@ A shopping cart REST API built with Symfony, **without API Platform**. It demons
 | Symfony | 8.1 |
 | Composer | 2 |
 
+| PHPUnit | 13 |
+| PHPStan | 2 (level 8, with the Symfony extension) |
+| Deptrac | 4 |
+| PHP-CS-Fixer | 3 (`@Symfony` plus `declare_strict_types`) |
+
 _Further tools are added here as they are introduced._
 
 ## Setup
@@ -29,7 +34,15 @@ make help    # list all targets
 
 The API listens on <http://localhost:8000>. If the port is taken, set `APP_PORT`, e.g. `APP_PORT=8001 make setup`.
 
-_Database setup, fixtures and `make qa` follow in the next steps._
+### Quality checks
+
+```sh
+make qa      # everything below, fails fast
+```
+
+`make qa` runs, in this order: `composer audit`, the code style check, PHPStan, Deptrac and PHPUnit. Deptrac runs twice: `deptrac.yaml` checks the layer direction (Domain ← Application ← Infrastructure, vendor code only in Infrastructure), `deptrac-contexts.php` checks the boundaries between the bounded contexts.
+
+_Database setup, fixtures, the OpenAPI checks and Behat follow in the next steps._
 
 ## Architecture
 
@@ -65,6 +78,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Area | Reference | Here | Why |
 |---|---|---|---|
 | Tooling | Composer scripts only | Makefile on the host wrapping Docker Compose and the Composer scripts | PHP runs only in the container |
+| Tooling | PHP-CS-Fixer with `@Symfony`, risky rules off | Additionally `declare_strict_types` (the only risky rule) | Strict types are required in every file; the tool enforces it |
 | Tooling | No architecture check, no CI | Deptrac, `composer audit` and GitHub Actions in QA | Layer and context rules are enforced, not just documented |
 | Database | PostgreSQL | SQLite | No extra service; persistence stays swappable |
 | Persistence | Auto-increment `int` plus `uuid` column | UUID primary key | One identity, generated before persisting |

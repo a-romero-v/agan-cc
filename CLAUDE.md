@@ -32,10 +32,11 @@ Claude Code runs on the host, PHP runs only in the Docker container. **Never run
 
 **Composer scripts (container):** the actual workflows.
 - `composer app:qa` — `app:openapi:check-sync` → `app:validate:openapi` → `composer audit` → cs check → phpstan → deptrac → phpunit → behat (fails fast). **Must be green before a task counts as done.**
-- `composer app:test` / `composer app:test:unit` — PHPUnit. Single test: `php bin/phpunit tests/Unit/Path/FooTest.php --filter testName`
+- `composer app:test` / `composer app:test:unit` / `composer app:test:integration` — PHPUnit. Single test: `php bin/phpunit tests/Unit/Path/FooTest.php --filter testName`
 - `composer app:behat` — Behat (`APP_ENV=test`, needs the test DB). Single feature: `APP_ENV=test vendor/bin/behat features/<file>.feature`
 - `composer app:analyse` — PHPStan level 8 on `src/` (warms the dev cache itself)
-- `composer app:deptrac`, `composer app:cs:check`, `composer app:cs:fix`
+- `composer app:deptrac` — two runs: `deptrac.yaml` (layer direction) and `deptrac-contexts.php` (context boundaries). A new context must be added to the list in `deptrac-contexts.php`.
+- `composer app:cs:check`, `composer app:cs:fix` — PHP-CS-Fixer, `@Symfony` plus `declare_strict_types`
 - `composer app:db:reset` / `composer app:db:reset:test`, `composer app:test:clear:cache`
 - `composer app:openapi:build` — regenerate `docs/openapi.yaml`
 

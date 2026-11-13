@@ -1,0 +1,40 @@
+# Layer direction inside every bounded context. Context boundaries are checked by deptrac-contexts.yaml.
+#
+#   Domain          depends on nothing (no framework, no Doctrine, no third-party code)
+#   Application     depends only on Domain
+#   Infrastructure  the only layer that may use Symfony, Doctrine and other vendor code
+deptrac:
+  paths:
+    - ./src
+  layers:
+    - name: Domain
+      collectors:
+        - type: classLike
+          value: '^App\\[^\\]+\\Domain\\'
+    - name: Application
+      collectors:
+        - type: classLike
+          value: '^App\\[^\\]+\\Application\\'
+    - name: Infrastructure
+      collectors:
+        - type: classLike
+          value: '^App\\([^\\]+\\Infrastructure\\|Kernel$)'
+    # Every namespaced class outside App\. Global PHP classes (\DateTimeImmutable, \Throwable) are not matched.
+    - name: Vendor
+      collectors:
+        - type: bool
+          must:
+            - type: classLike
+              value: '.+\\.+'
+          must_not:
+            - type: classLike
+              value: '^App\\'
+  ruleset:
+    Domain: ~
+    Application:
+      - Domain
+    Infrastructure:
+      - Domain
+      - Application
+      - Vendor
+    Vendor: ~

@@ -5,7 +5,7 @@ COMPOSE = docker compose
 EXEC    = $(COMPOSE) exec php
 
 .DEFAULT_GOAL := help
-.PHONY: help setup up down shell
+.PHONY: help setup up down shell qa test analyse deptrac cs-fix
 
 help: ## List the available targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  %-10s %s\n", $$1, $$2}'
@@ -23,3 +23,18 @@ down: ## Stop the containers
 
 shell: ## Open a shell in the php container
 	$(EXEC) sh
+
+qa: ## Run all checks (must be green before a task counts as done)
+	$(EXEC) composer app:qa
+
+test: ## Run PHPUnit
+	$(EXEC) composer app:test
+
+analyse: ## Run PHPStan
+	$(EXEC) composer app:analyse
+
+deptrac: ## Check the architecture rules
+	$(EXEC) composer app:deptrac
+
+cs-fix: ## Fix the code style
+	$(EXEC) composer app:cs:fix

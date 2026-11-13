@@ -12,3 +12,8 @@
 /.idea/
 /.vscode/
 .DS_Store
+
+/.phpunit.cache/
+/.php-cs-fixer.cache
+/.deptrac.cache
+/phpunit.xml
