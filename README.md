@@ -10,11 +10,26 @@ A shopping cart REST API built with Symfony, **without API Platform**. It demons
 
 ## Tech Stack
 
-_TBD at scaffold: exact PHP, Symfony and tool versions._
+| Component | Version |
+|---|---|
+| PHP | 8.5 (official `php:8.5-cli-alpine` image, plus `intl`) |
+| Symfony | 8.1 |
+| Composer | 2 |
+
+_Further tools are added here as they are introduced._
 
 ## Setup
 
-_TBD at scaffold._ Target: `make setup` builds and starts the containers, installs dependencies, resets the databases and loads fixtures. `make qa` runs all checks.
+Requirements: Docker with Docker Compose, and `make`. PHP and Composer run only inside the container.
+
+```sh
+make setup   # build the image, start the containers, install the dependencies
+make help    # list all targets
+```
+
+The API listens on <http://localhost:8000>. If the port is taken, set `APP_PORT`, e.g. `APP_PORT=8001 make setup`.
+
+_Database setup, fixtures and `make qa` follow in the next steps._
 
 ## Architecture
 
@@ -32,6 +47,7 @@ Rationale for non-obvious decisions. Entries are added together with the code th
 | Reservation TTL (R11) | 30 minutes, configurable | Bounds how long an abandoned cart can hold stock |
 | Guest cart expiry | Not implemented | Expired reservations already free the stock (R11, R12); the rows are harmless |
 | Foreign cart (R6) | 404, identical to an unknown cart | Does not reveal that a cart exists |
+| Web server | PHP's built-in server (`php -S`) with `PHP_CLI_SERVER_WORKERS`, as in the reference | Enough for a demo and keeps the setup to one image; the workers allow parallel requests. Not for production, where FrankenPHP or PHP-FPM would be used |
 | Cart view across contexts | Through ports of the Cart context, no SQL joins across contexts | Keeps the contexts independent and the persistence swappable |
 
 ## Accepted Risks

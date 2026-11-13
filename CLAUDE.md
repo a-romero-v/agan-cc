@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Coding challenge: a shopping cart REST API in Symfony 8 / PHP 8.5, **without API Platform**. It demonstrates hexagonal architecture, DDD, CQRS and event-driven design. Code quality matters more than speed.
+Coding challenge: a shopping cart REST API in Symfony 8.1 / PHP 8.5, **without API Platform**. It demonstrates hexagonal architecture, DDD, CQRS and event-driven design. Code quality matters more than speed.
 
 - This file describes the **target state**. The scaffold (Makefile, Composer scripts, Deptrac, `src/`) is built step by step, so some commands below may not exist yet.
 - Business rules (R1…), acceptance criteria (AC1…) and the Ubiquitous Language are in `SPEC.md`. If a task contradicts `SPEC.md` or the API contract, **stop and ask**.
@@ -41,7 +41,7 @@ Claude Code runs on the host, PHP runs only in the Docker container. **Never run
 
 New workflows get a Composer script first, then a Make target if needed on the host.
 
-**Docker Compose:** service `php` (app) and service `worker` (same image, runs `php bin/console messenger:consume domain_events -vv`, logs in `var/log/domain_events.log`). The image needs `pdo_sqlite`, `intl` and `opcache`; verify the exact list at scaffold.
+**Docker Compose:** service `php` (app, PHP's built-in server with `PHP_CLI_SERVER_WORKERS` on port 8000) and service `worker` (same image, runs `php bin/console messenger:consume domain_events -vv`, logs in `var/log/domain_events.log`). The image is `php:8.5-cli-alpine`, which already ships `pdo_sqlite` and OPcache; only `intl` is added. The host port is `APP_PORT` (default 8000).
 
 **CI:** one GitHub Actions workflow that runs `make setup` and `make qa` on every push and pull request.
 

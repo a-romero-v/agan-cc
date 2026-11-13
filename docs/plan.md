@@ -6,12 +6,14 @@ Progress tracker. Each step ends with a green `make qa` and one or more commits.
 - [x] `SPEC.md`, `CLAUDE.md`, `.claude/rules/`, README skeleton, this plan
 
 ## M1 – Scaffold
-- [ ] Docker Compose (`php`, `worker`), Dockerfile, Makefile
-- [ ] Symfony skeleton, Composer scripts (`app:*`), `.env` files
-- [ ] QA tooling: PHP-CS-Fixer, PHPStan level 8, Deptrac (layers and contexts), PHPUnit, Behat
-- [ ] SQLite setup: `BEGIN IMMEDIATE` and `busy_timeout` through `TransactionInterface`, DB reset command
+- [x] Docker image, Compose (`php`), Makefile, Symfony skeleton
+- [ ] QA tooling: PHP-CS-Fixer, PHPStan level 8, Deptrac (layers and contexts), PHPUnit, Composer scripts (`app:*`). `app:qa` grows with the project: OpenAPI checks join in M2, Behat in M3
+- [ ] Doctrine with SQLite, migrations, DB reset command
+- [ ] `TransactionInterface` with `BEGIN IMMEDIATE` and `busy_timeout`, integration test for the write lock
+- [ ] Messenger transport `domain_events`, `worker` service; manual check of the worker against the SQLite lock
 - [ ] GitHub Actions workflow running `make qa`
-- [ ] Verify the scaffold items marked "verify at scaffold" in `.claude/rules/` and record the results
+
+Items marked "verify at scaffold" in `.claude/rules/` are verified in the milestone that builds them; M1 covers the database and Docker ones.
 
 ## M2 – API contract
 - [ ] `api-contract/` (base, paths, schemas incl. `ProblemDetails`), `app:openapi:build`, `app:openapi:check-sync`, `bin/validate-openapi`
