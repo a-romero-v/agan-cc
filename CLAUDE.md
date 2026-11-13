@@ -16,9 +16,18 @@ Coding challenge: a shopping cart REST API in Symfony 8.1 / PHP 8.5. It demonstr
 
 Many approaches (OpenAPI build/sync, Composer scripts, buses, domain event publisher, exception mapping, Behat setup, DB reset command) come from the reference project <https://github.com/a-romero-v/sample-hexagonal-api>, either copied 1:1 or adapted.
 
+- A local checkout is expected next to this repository, at `../sample-hexagonal-api`. Read it there instead of fetching from GitHub.
 - Before building such a part, check how the reference project does it and reuse what fits.
 - **Every deviation from the reference project must be recorded** in the `README.md` section "Deviations from the Reference Project": what changed, and why. Add the entry in the same commit as the change.
 - Known deviations are listed in each `.claude/rules/*.md` file under "Deviations from the reference".
+
+## Workflow
+
+- **One session per milestone.** Each milestone in `docs/plan.md` (M2, M3, …) is worked on in a fresh session, to keep the context small. At the start of a session, read `docs/plan.md` to see where the work stands. When the last step of a milestone is committed, say so and ask the user to start a new session; do not begin the next milestone in the same one. Anything the next session needs must be in the repository (plan, README, rules), not only in the conversation.
+- `/slice <use case>`: build one use case end to end, contract first (`.claude/skills/slice`).
+- `/qa`: run the checks. Clears the test cache and runs `make qa` in a separate context on a small model, so only the summary comes back (`.claude/skills/qa`). Prefer it over calling `make qa` directly.
+- `/step-done`: at the end of every step. Runs the checks, updates the docs, proposes the commit and waits (`.claude/skills/step-done`).
+- Agent `reviewer` (`.claude/agents/reviewer.md`): read-only review against the spec and the rules. Only on request, for larger steps, before the commit is proposed.
 
 ## Commands
 

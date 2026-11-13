@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make *)",
+      "Bash(docker compose exec php *)",
+      "Bash(docker compose exec -T php *)",
+      "Bash(docker compose ps *)",
+      "Bash(docker compose logs *)",
+      "Bash(docker compose restart worker)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ],
+    "deny": [
+      "Edit(docs/openapi.yaml)",
+      "Edit(config/jwt/**)"
+    ]
+  }
+}

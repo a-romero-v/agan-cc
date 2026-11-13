@@ -24,3 +24,6 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Personal Claude Code overrides
+/.claude/settings.local.json
