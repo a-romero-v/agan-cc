@@ -9,3 +9,5 @@ services:
       - .:/app
     environment:
       PHP_CLI_SERVER_WORKERS: 4
+      # One SQLite file per environment: var/data_dev.db and var/data_test.db.
+      DATABASE_URL: "sqlite:///%kernel.project_dir%/var/data_%kernel.environment%.db"

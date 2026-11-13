@@ -19,5 +19,7 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # SQLite ignores foreign keys unless every connection switches them on.
+    # DBAL ships this middleware but does not register it by default.
+    Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys:
+        tags: ['doctrine.middleware']

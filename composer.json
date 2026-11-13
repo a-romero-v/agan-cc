@@ -7,6 +7,9 @@
         "php": ">=8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^3.4",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "^3.7",
         "symfony/console": "8.1.*",
         "symfony/dotenv": "8.1.*",
         "symfony/flex": "^2",
@@ -19,6 +22,7 @@
         "friendsofphp/php-cs-fixer": "*",
         "phpstan/extension-installer": "*",
         "phpstan/phpstan": "*",
+        "phpstan/phpstan-doctrine": "^2.1",
         "phpstan/phpstan-symfony": "*",
         "phpunit/phpunit": "*"
     },
@@ -85,7 +89,9 @@
             "@app:analyse",
             "@app:deptrac",
             "@app:test"
-        ]
+        ],
+        "app:db:reset": "@php bin/console app:db:reset --env=dev",
+        "app:db:reset:test": "@php bin/console app:db:reset --env=test"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -93,7 +99,8 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "8.1.*"
+            "require": "8.1.*",
+            "docker": false
         }
     }
 }

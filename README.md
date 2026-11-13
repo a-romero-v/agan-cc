@@ -15,6 +15,8 @@ A shopping cart REST API built with Symfony, **without API Platform**. It demons
 | PHP | 8.5 (official `php:8.5-cli-alpine` image, plus `intl`) |
 | Symfony | 8.1 |
 | Composer | 2 |
+| Doctrine | ORM 3, DBAL 4, Migrations |
+| Database | SQLite 3 |
 
 | PHPUnit | 13 |
 | PHPStan | 2 (level 8, with the Symfony extension) |
@@ -28,8 +30,9 @@ _Further tools are added here as they are introduced._
 Requirements: Docker with Docker Compose, and `make`. PHP and Composer run only inside the container.
 
 ```sh
-make setup   # build the image, start the containers, install the dependencies
-make help    # list all targets
+make setup     # build the image, start the containers, install the dependencies, reset the databases
+make db-reset  # drop all tables and run the migrations again (dev and test)
+make help      # list all targets
 ```
 
 The API listens on <http://localhost:8000>. If the port is taken, set `APP_PORT`, e.g. `APP_PORT=8001 make setup`.
@@ -42,7 +45,9 @@ make qa      # everything below, fails fast
 
 `make qa` runs, in this order: `composer audit`, the code style check, PHPStan, Deptrac and PHPUnit. Deptrac runs twice: `deptrac.yaml` checks the layer direction (Domain ← Application ← Infrastructure, vendor code only in Infrastructure), `deptrac-contexts.php` checks the boundaries between the bounded contexts.
 
-_Database setup, fixtures, the OpenAPI checks and Behat follow in the next steps._
+The database is SQLite, one file per environment: `var/data_dev.db` and `var/data_test.db`.
+
+_Fixtures, the OpenAPI checks and Behat follow in the next steps._
 
 ## Architecture
 
@@ -81,6 +86,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Tooling | PHP-CS-Fixer with `@Symfony`, risky rules off | Additionally `declare_strict_types` (the only risky rule) | Strict types are required in every file; the tool enforces it |
 | Tooling | No architecture check, no CI | Deptrac, `composer audit` and GitHub Actions in QA | Layer and context rules are enforced, not just documented |
 | Database | PostgreSQL | SQLite | No extra service; persistence stays swappable |
+| Database | `app:db:reset` drops and re-creates the database | Drops all tables through the DBAL schema manager | DBAL cannot drop a SQLite database; dropping tables works on every platform |
 | Persistence | Auto-increment `int` plus `uuid` column | UUID primary key | One identity, generated before persisting |
 | Persistence | `save()` returns the aggregate | `save()` returns `void` | Commands return nothing; reads go through queries |
 | Persistence | Money as `float` | Integer cents plus currency | No rounding errors |

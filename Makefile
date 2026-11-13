@@ -5,15 +5,17 @@ COMPOSE = docker compose
 EXEC    = $(COMPOSE) exec php
 
 .DEFAULT_GOAL := help
-.PHONY: help setup up down shell qa test analyse deptrac cs-fix
+.PHONY: help setup up down shell db-reset qa test analyse deptrac cs-fix
 
 help: ## List the available targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  %-10s %s\n", $$1, $$2}'
 
-setup: ## Build the image, start the containers and install the dependencies
+setup: ## Build the image, start the containers, install the dependencies, reset the dev and test databases
 	$(COMPOSE) build
 	$(COMPOSE) up -d --wait
 	$(EXEC) composer install
+	$(EXEC) composer app:db:reset
+	$(EXEC) composer app:db:reset:test
 
 up: ## Start the containers
 	$(COMPOSE) up -d --wait
@@ -23,6 +25,10 @@ down: ## Stop the containers
 
 shell: ## Open a shell in the php container
 	$(EXEC) sh
+
+db-reset: ## Reset the dev and test databases
+	$(EXEC) composer app:db:reset
+	$(EXEC) composer app:db:reset:test
 
 qa: ## Run all checks (must be green before a task counts as done)
 	$(EXEC) composer app:qa

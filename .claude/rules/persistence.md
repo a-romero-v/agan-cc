@@ -9,7 +9,7 @@ The persistence layer is swappable.
   - `toDomain()` rebuilds the aggregate through `Aggregate::reconstitute()`.
   - `toRecord($aggregate, ?$existing)` writes onto the existing Record so Doctrine's change tracking produces an UPDATE.
   - Records are updated in place, so their properties are **not** `readonly`.
-  - Records stay `final`. This relies on Doctrine native lazy objects, so no proxy subclassing is needed. Verify at scaffold whether DoctrineBundle still needs `enable_native_lazy_objects: true` or enables it by default.
+  - Records stay `final`. This relies on Doctrine native lazy objects, so no proxy subclassing is needed. Verified at scaffold: DoctrineBundle 3.1+ always enables them, no configuration needed.
 - The UUID is the primary key. There is no surrogate integer ID. IDs are generated through a port before persisting.
 - `Repository::save()` does `persist` + `flush` (as in the reference) and returns `void`. The transaction is owned by the command handler through `TransactionInterface`.
 - Use portable mapping types only: UUIDs as strings, money as integers, timestamps as `datetime_immutable`.
@@ -19,7 +19,9 @@ The persistence layer is swappable.
 - No foreign keys and no SQL joins across context boundaries. Read models that need data from another context go through a port (see `CLAUDE.md`, cart view).
 - Optimistic lock on the cart: `save()` fails with a domain exception (`Conflict`) when the stored version is not the one that was loaded. The cart is always loaded **inside** the transaction block. SQLite's `BEGIN IMMEDIATE` already prevents lost updates; PostgreSQL would not, so the lock keeps the DB switch inside Infrastructure. Verify the mechanism at scaffold (`#[ORM\Version]` or an explicit comparison, because the domain owns the counter).
 - Every repository port has an in-memory implementation for unit tests.
-- DBs: SQLite, `var/data_dev.db` (dev) and `var/data_test.db` (test).
+- DBs: SQLite, `var/data_dev.db` (dev) and `var/data_test.db` (test). `DATABASE_URL` is set in `compose.yaml`.
+- SQLite enforces foreign keys only when each connection enables them. DBAL's `EnableForeignKeys` middleware is registered in `config/services.yaml`; `DatabaseSetupTest` guards it.
+- `app:db:reset` drops all tables through the DBAL schema manager and runs the migrations. It does not use `doctrine:database:drop`, which DBAL does not support for SQLite.
 
 ## One cart per user (R7)
 - The create-cart handler checks for an existing cart and creates one inside the same transaction.
