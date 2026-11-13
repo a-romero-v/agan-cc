@@ -57,5 +57,5 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [ ] Optional: `app:inventory:purge-expired`
 
 ## M8 – Wrap-up
-- [ ] README: tech stack, setup, architecture, design decisions and deviations confirmed against the code
+- [ ] README: tech stack, setup, architecture, design decisions and deviations confirmed against the code; overview of the final database schema
 - [ ] Final review of the commit history, send the repository link

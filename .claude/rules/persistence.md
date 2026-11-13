@@ -23,6 +23,21 @@ The persistence layer is swappable.
 - SQLite enforces foreign keys only when each connection enables them. DBAL's `EnableForeignKeys` middleware is registered in `config/services.yaml`; `DatabaseSetupTest` guards it.
 - `app:db:reset` drops all tables through the DBAL schema manager and runs the migrations. It does not use `doctrine:database:drop`, which DBAL does not support for SQLite.
 
+## Schema
+The schema follows the domain model, not the other way round: aggregate first, then the Records, then a migration generated with `doctrine:migrations:diff` and read before it is committed. There is no upfront design of the whole schema. Each context gets its tables in the milestone that builds it; the tables are presented to the user before the Records are written.
+
+Conventions for all tables:
+- Table names singular, snake_case (`cart`, `cart_item`, `stock_item`).
+- Money is a pair of columns: `<name>_amount` (integer cents) and `<name>_currency`. The tax rate is `tax_rate_bp` (integer basis points).
+- Foreign keys only inside a context (`cart_item.cart_id` yes, `cart_item.product_id` no).
+- A business rule that the database can enforce gets a constraint, as a safety net behind the domain:
+  - `cart_item`: unique on (`cart_id`, `product_id`); a cart holds at most one item per product.
+  - `cart`: unique on `owner_user_id` and on `token_hash` (see R7 below).
+  - `reservation`: unique on (`cart_id`, `product_id`), because a reservation is always set to an absolute quantity; index on (`product_id`, `expires_at`) for the availability calculation.
+  - `stock_item`: `product_id` is the primary key.
+- `messenger_messages` is created by `messenger:setup-transports`, never by a migration.
+- The README gets an overview of the final schema at the end (M8), generated from the real state.
+
 ## One cart per user (R7)
 - The create-cart handler checks for an existing cart and creates one inside the same transaction.
 - `CartOwner` is stored as `owner_user_id` (nullable, unique) and `token_hash` (nullable, unique). Guest carts have `owner_user_id = NULL`; SQLite and PostgreSQL both allow several NULLs in a unique index.

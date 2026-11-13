@@ -34,7 +34,8 @@ Argument: the use case, ideally with its AC and rule IDs from `SPEC.md` (e.g. `a
 - Other contexts only through a port of this context (`CLAUDE.md`, "Cross-context adapters").
 
 ## 5. Infrastructure
-- Record, mapper and repository in `<Context>/Infrastructure/Persistence`; add the context's mapping to `config/packages/doctrine.yaml` if it is the first Record; create a migration (`.claude/rules/persistence.md`).
+- New or changed tables: present them to the user first (columns, keys, indexes, constraints) and wait for the go-ahead. Conventions are in `.claude/rules/persistence.md`, "Schema".
+- Record, mapper and repository in `<Context>/Infrastructure/Persistence`; add the context's mapping to `config/packages/doctrine.yaml` if it is the first Record. Generate the migration with `doctrine:migrations:diff` and read it before keeping it.
 - Controller: validated DTO via `#[MapRequestPayload]`, UUID route requirements, no try/catch. Every route with `{cartId}` carries `#[IsGranted(CartVoter::…, subject: 'cartId')]` (`.claude/rules/security.md`).
 - Register handlers in `config/services.yaml` (bus locators; event handlers by the `messenger.message_handler` tag).
 - A new bounded context must be added to the list in `deptrac-contexts.php`.
