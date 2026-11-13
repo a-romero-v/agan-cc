@@ -1,6 +1,6 @@
 # Shopping Cart API
 
-A shopping cart REST API built with Symfony, **without API Platform**. It demonstrates hexagonal architecture, DDD, CQRS and event-driven design.
+A shopping cart REST API built with Symfony. It demonstrates hexagonal architecture, DDD, CQRS and event-driven design.
 
 - Functional specification: [`SPEC.md`](SPEC.md)
 - API contract: `docs/openapi.yaml` (generated from `api-contract/`)

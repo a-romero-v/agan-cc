@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Coding challenge: a shopping cart REST API in Symfony 8.1 / PHP 8.5, **without API Platform**. It demonstrates hexagonal architecture, DDD, CQRS and event-driven design. Code quality matters more than speed.
+Coding challenge: a shopping cart REST API in Symfony 8.1 / PHP 8.5. It demonstrates hexagonal architecture, DDD, CQRS and event-driven design. Code quality matters more than speed.
 
 - This file describes the **target state**. The scaffold (Makefile, Composer scripts, Deptrac, `src/`) is built step by step, so some commands below may not exist yet.
 - Business rules (R1…), acceptance criteria (AC1…) and the Ubiquitous Language are in `SPEC.md`. If a task contradicts `SPEC.md` or the API contract, **stop and ask**.

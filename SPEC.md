@@ -6,7 +6,7 @@
 
 ## 1. Goal
 
-A RESTful API for a shopping cart, built with current Symfony **without API Platform**.
+A RESTful API for a shopping cart, built with current Symfony.
 The focus is code quality and care, not speed.
 
 Required features (from the challenge brief):
@@ -177,7 +177,6 @@ IDs are UUIDs.
 ## 8. Non-functional Requirements
 
 - PHP and Symfony each in their current stable version; the versions are recorded at project start in `README.md` (Tech Stack).
-- No API Platform.
 - Runs via Docker Compose; `make setup` prepares everything and `make qa` runs all checks. Setup instructions in the README.
 - The database is SQLite. Switching to another database (e.g. PostgreSQL) must only require changes in Infrastructure adapters, configuration and migrations, never in Domain or Application.
 - Automated tests: PHPUnit unit tests for domain and application, PHPUnit integration tests against the real database (concurrency, message transport), Behat acceptance tests (full HTTP round-trips) validated against the contract.
