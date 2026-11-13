@@ -1,0 +1,49 @@
+monolog:
+    channels:
+        - deprecation
+        # For the application's own event handlers; Messenger itself logs to "messenger".
+        - domain_events
+
+when@dev:
+    monolog:
+        handlers:
+            main:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+                formatter: monolog.formatter.json
+                channels: ["!event", "!messenger", "!domain_events"]
+            # Everything about domain event delivery in one file: what the worker
+            # received, handled, retried or rejected.
+            domain_events:
+                type: stream
+                path: "%kernel.logs_dir%/domain_events.log"
+                level: debug
+                formatter: monolog.formatter.json
+                channels: ["messenger", "domain_events"]
+            # Console output, e.g. for `docker compose logs worker`.
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console"]
+
+when@test:
+    monolog:
+        handlers:
+            main:
+                type: 'null'
+
+when@prod:
+    monolog:
+        handlers:
+            main:
+                type: stream
+                path: php://stderr
+                level: info
+                formatter: monolog.formatter.json
+                channels: ["!deprecation"]
+            deprecation:
+                type: stream
+                channels: [deprecation]
+                path: php://stderr
+                formatter: monolog.formatter.json

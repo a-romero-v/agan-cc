@@ -11,6 +11,7 @@ Progress tracker. Each step ends with a green `make qa` and one or more commits.
 - [x] Doctrine with SQLite, migrations, DB reset command
 - [x] `TransactionInterface` with `BEGIN IMMEDIATE` and `busy_timeout`, integration test for the write lock
 - [x] Messenger transport `domain_events`, `worker` service; manual check of the worker against the SQLite lock (result in `.claude/rules/domain-events.md`)
+- [x] Monolog with a separate log file for domain event delivery
 - [ ] GitHub Actions workflow running `make qa`
 
 Items marked "verify at scaffold" in `.claude/rules/` are verified in the milestone that builds them; M1 covers the database and Docker ones.

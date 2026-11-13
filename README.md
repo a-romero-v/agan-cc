@@ -18,6 +18,7 @@ A shopping cart REST API built with Symfony, **without API Platform**. It demons
 | Doctrine | ORM 3, DBAL 4, Migrations |
 | Database | SQLite 3 |
 | Messaging | Symfony Messenger with the Doctrine transport |
+| Logging | Monolog |
 
 | PHPUnit | 13 |
 | PHPStan | 2 (level 8, with the Symfony extension) |
@@ -48,7 +49,7 @@ make qa      # everything below, fails fast
 
 The database is SQLite, one file per environment: `var/data_dev.db` and `var/data_test.db`.
 
-Two containers run: `php` serves the API, `worker` consumes the domain events from a queue table in the same database (`docker compose logs worker`). In the test environment events are handled inline, so the tests need no worker.
+Two containers run: `php` serves the API, `worker` consumes the domain events from a queue table in the same database. Its log is `var/log/domain_events.log`, the general application log is `var/log/dev.log` (both JSON lines); `docker compose logs worker` shows the worker's console output. In the test environment events are handled inline, so the tests need no worker.
 
 _Fixtures, the OpenAPI checks and Behat follow in the next steps._
 
