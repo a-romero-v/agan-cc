@@ -1,0 +1,57 @@
+# Plan
+
+Progress tracker. Each step ends with a green `make qa` and one or more commits. Update the checkbox after each completed step.
+
+## M0 – Documentation
+- [x] `SPEC.md`, `CLAUDE.md`, `.claude/rules/`, README skeleton, this plan
+
+## M1 – Scaffold
+- [ ] Docker Compose (`php`, `worker`), Dockerfile, Makefile
+- [ ] Symfony skeleton, Composer scripts (`app:*`), `.env` files
+- [ ] QA tooling: PHP-CS-Fixer, PHPStan level 8, Deptrac (layers and contexts), PHPUnit, Behat
+- [ ] SQLite setup: `BEGIN IMMEDIATE` and `busy_timeout` through `TransactionInterface`, DB reset command
+- [ ] GitHub Actions workflow running `make qa`
+- [ ] Verify the scaffold items marked "verify at scaffold" in `.claude/rules/` and record the results
+
+## M2 – API contract
+- [ ] `api-contract/` (base, paths, schemas incl. `ProblemDetails`), `app:openapi:build`, `app:openapi:check-sync`, `bin/validate-openapi`
+- [ ] Behat steps validating requests and responses against the contract
+
+## M3 – Shared kernel
+- [ ] Command and query bus ports with in-process adapters
+- [ ] `AbstractDomainException`, `#[DomainError]`, `ErrorType`, exception mappers, Problem Details (4xxx codes)
+- [ ] `ClockInterface`, ID generator, `TransactionInterface`, `AggregateRoot`, `DomainEvent`
+- [ ] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`
+- [ ] Response hardening (`nosniff`), 415 and 400 handling
+
+## M4 – Product
+- [ ] `Product`, `Money`, `TaxRate`, repository, fixtures
+- [ ] `GET /products`, `GET /products/{productId}`
+
+## M5 – Cart core for guests (AC1–AC4, guest part of AC5)
+- [ ] `Cart` aggregate, `CartItem`, `Quantity`, `CartOwner`, cart version, domain events
+- [ ] Persistence: records, mapper, repository, optimistic lock, in-memory repository
+- [ ] Ports `ProductCatalogInterface` and `StockReservationInterface` (always-succeeding stub)
+- [ ] `POST /carts` (guest) with cart token, cart-token authenticator, `CartVoter`, route-coverage test, 404 for foreign carts (R6)
+- [ ] View cart with totals (AC4, R8)
+- [ ] Add item (AC1), remove item (AC2), change quantity (AC3)
+
+## M6 – Registered users and rate limits (AC5, AC7)
+- [ ] `User` context, `POST /auth/login` (JWT), uniform login failure
+- [ ] JWT authenticator, mutually exclusive with the cart-token authenticator
+- [ ] One cart per user (R7), integration test for concurrent `POST /carts`
+- [ ] Rate limiters: login, guest cart creation, failed token authentication (AC7)
+
+**Deliverable milestone:** after M6 the brief is fully covered and the README is complete for this state.
+
+## M7 – Stock reservation (AC6)
+- [ ] `Inventory` context: `StockItem`, `Reservation`, fixtures
+- [ ] Synchronous reserve behind the Cart port (R9), `InsufficientStockException`
+- [ ] Asynchronous release through domain events, idempotent and version-aware (R10)
+- [ ] TTL, re-reserve and `reserved: false` in the cart view (R11–R13)
+- [ ] Integration tests: concurrency (R14), real Doctrine transport with worker
+- [ ] Optional: `app:inventory:purge-expired`
+
+## M8 – Wrap-up
+- [ ] README: tech stack, setup, architecture, design decisions and deviations confirmed against the code
+- [ ] Final review of the commit history, send the repository link

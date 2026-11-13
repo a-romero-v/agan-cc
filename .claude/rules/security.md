@@ -1,0 +1,75 @@
+# Security
+
+## Setup (from the reference)
+- Firewall `login`: `json_login` with the Lexik success handler. Firewall `api`: stateless, `jwt`.
+- `UserRecord` is the security user, loaded through the entity provider.
+
+## Guests
+- `POST /carts` without credentials creates a cart and returns a random cart token **exactly once**. Only its hash is stored.
+- `POST /carts` is public, but a present and invalid `Authorization` header is answered with 401. It never creates a guest cart silently.
+- Commands return void, so the controller generates `CartId` and the token through ports, passes them in the command, returns the token once and then dispatches the view query.
+- A custom authenticator resolves `Authorization: Bearer <cart-token>` to a guest principal bound to that cart.
+- No confusion between authenticators: their `supports()` methods must be mutually exclusive, on both sides. Cart tokens carry a fixed prefix (e.g. `cart_`); the cart-token authenticator accepts only prefixed values and the JWT authenticator must ignore them (Lexik's authenticator otherwise claims every bearer token). Verify the authenticator manager's behaviour at scaffold.
+
+## Registered users
+JWT from `/auth/login`. The keys are committed in `config/jwt/` for convenience.
+
+## Cart access
+- Every route with `{cartId}`: `#[IsGranted(CartVoter::VIEW|EDIT, subject: 'cartId')]` on the controller. A route without it is a bug. `POST /carts` has no `cartId`, is public and is the only cart route without the attribute.
+- Ownership logic lives in a pure-PHP Application service. `CartVoter` (`Cart/Infrastructure/Security`) only adapts it.
+- Owner resolution: the Cart context never imports `UserRecord`. Both principals (guest and registered user) implement a small interface in `Shared/Infrastructure/Security`, and the Cart controller and voter read the owner through it.
+- Foreign **and unknown** carts are denied by the voter (it runs before the controller), so both take the same path. `HttpExceptionMapper` maps every access denial of an authenticated principal to one 404 response (R6, see `errors.md`). There are no other voters.
+- `POST /carts/{cartId}/items`: the controller generates the `itemId` through the port and passes it in the command. If the cart returned by the follow-up query contains an item with that ID, the response is 201 with `Location`, otherwise 200.
+- Missing or invalid token → 401 from the authenticator's entry point.
+
+## Products
+Reads are public. There is no admin role.
+
+## Tokens and credentials
+- Cart token: at least 32 random bytes from a CSPRNG, generated behind a port, plus the `cart_` prefix. Stored as a SHA-256 hash and looked up by that hash (the entropy makes a slow hash unnecessary).
+- The token appears only in the `POST /carts` response, which is sent with `Cache-Control: no-store`.
+- JWT: asymmetric signature with a pinned algorithm and a short lifetime (1 hour). The committed keys are for the demo only; the README says so.
+- Passwords use Symfony's `auto` hasher. A failed login returns the same response for an unknown user and a wrong password.
+- Never log tokens, passwords or `Authorization` headers. Log authentication failures, access denials and rate-limit hits (without secrets).
+
+## Rate limiting
+- Uses `symfony/rate-limiter`. Limits are configuration, not code.
+- `POST /auth/login`: Symfony `login_throttling` per username and IP.
+- `POST /carts` without credentials: per IP. Each call creates a row, and guest carts can hoard stock (see threats).
+- Failed bearer authentication (cart token or JWT): per IP, against token guessing.
+- A hit is answered with 429 Problem Details and `Retry-After`. Verify at scaffold what status `login_throttling` produces by default and map it to 429.
+- The limiter lives in Infrastructure (authenticator, listener). Domain and Application know nothing about it.
+- In test the limits are high enough not to disturb other scenarios; dedicated Behat scenarios exercise each limiter.
+
+## Input and output hardening
+- Path IDs are constrained to UUIDs by route requirements. Anything else is a 404 before a controller runs.
+- DTOs whitelist fields. Wrong content type is 415, malformed JSON is 400.
+- An item is always loaded through its cart aggregate, so an `itemId` of another cart is a 404.
+- Stateless: no sessions and no cookies, so no CSRF surface. No CORS bundle unless a browser client is required.
+- All responses send `X-Content-Type-Options: nosniff`.
+- `composer audit` is part of `app:qa`.
+
+## Threats and how they are handled
+| Threat | Mitigation |
+|---|---|
+| Reading or changing a foreign cart (IDOR) | `CartVoter` on every `{cartId}` route, items only through the cart, 404 identical to unknown |
+| Guessing cart tokens | 256-bit tokens, hashed storage, rate limit on failed authentication |
+| Password guessing | `login_throttling`, uniform failure response |
+| Token confusion (cart token as JWT or vice versa) | prefix, mutually exclusive authenticators (AC5) |
+| Flooding guest carts | rate limit on `POST /carts` |
+| Stock hoarding through many guest carts | rate limit, quantity cap (R2), reservation TTL (R11). Residual risk is accepted and documented in the README |
+| Overselling under concurrency | write lock (R14) |
+| Information leaks through errors or logs | central mappers, no internals in 500s, no secrets in logs |
+| Vulnerable dependencies | `composer audit` in QA |
+
+## Tests
+- A test iterates over all routes under `/carts` and fails if one lacks `#[IsGranted]` with a `CartVoter` attribute. The only allowed exception is `POST /carts`, listed explicitly in the test.
+- Behat covers AC5 (guest, registered user, cross-user, token confusion), each rate limiter and the uniform login failure.
+
+## Deviations from the reference
+- Not carried over: registration, logout, `JwtBlocklist` and the `jti` listener, `ROLE_ADMIN`, `ProductVoter`.
+- Guest carts with a cart token and a second authenticator.
+- `#[IsGranted]` on the route instead of `denyAccessUnlessGranted()` in the method.
+- Access denied is 404 instead of 403.
+- Routes have no `/api` prefix.
+- Rate limiting, `composer audit` and the route-coverage test are additions.
