@@ -120,6 +120,10 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Errors | HTTP status in the domain (`#[ApiException]`) | `#[DomainError]` with a business-level `ErrorType` | The domain knows no HTTP |
 | Errors | `{code, error}` | RFC 9457 Problem Details | Standard format |
 | Errors | Access denied is 403 | Access denied is 404 | No existence leak (R6) |
+| Errors | `HttpExceptionMapper` handles access denied and validation only; other exceptions fall through to Symfony's error page | It handles every HTTP exception, and `ApiExceptionSubscriber` turns anything unmapped into a 500 Problem Details response | Every error has the same format and an `errorCode`; no framework error page |
+| Errors | The exception message is the response text | Framework exceptions get a fixed `detail` per case; only domain exceptions show their own message | Framework messages name routes, classes and parameters |
+| Errors | Shared errors are domain exception classes (`AccessDeniedException`, `ValidationException`) created inside the mapper | `SharedErrorCode` enum in Infrastructure | They are HTTP concerns, not domain errors; nothing in the domain throws them |
+| Errors | Mappers passed to the subscriber in `services.yaml` | `#[AutowireIterator]` on the constructor | No service definition needed |
 | Security | Registration, logout, JWT blocklist, admin role | Not carried over | Out of scope |
 | Security | JWT keys committed in `config/jwt/` | Generated at setup, git-ignored | No private key in a public repository |
 | Security | JWT only | Additional cart-token authenticator for guests | Anonymous carts |

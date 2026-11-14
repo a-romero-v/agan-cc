@@ -8,7 +8,10 @@
   - Mappers implement `ExceptionMapperInterface`, tagged `app.exception_mapper`. The first mapper that supports the exception wins (as in the reference).
   - `DomainExceptionMapper`: the only place that turns `ErrorType` into a status (`NotFound` → 404, `Conflict` → 409, `Invalid` → 422).
   - `HttpExceptionMapper`: **every** `HttpExceptionInterface` (400 malformed JSON, 415, router 404/405, 429 rate limit with `Retry-After`), access denied and validation errors.
-  - A fallback maps anything else to a 500 Problem Details response without internals.
+  - Framework exceptions get a fixed `detail` per case, never the exception message. Only `Allow` and `Retry-After` are passed on from the exception's headers.
+  - The fallback lives in `ApiExceptionSubscriber`: anything no mapper supports becomes a 500 Problem Details response without internals.
+  - The 4xxx codes are the enum `SharedErrorCode` (`Shared/Infrastructure/Http`); responses are built only through `ProblemDetailsResponse`.
+  - Open until Symfony Security is installed (M5): the mapper handles `AccessDeniedHttpException`; Security's own `AccessDeniedException` must be covered and tested then.
   - Logging: status ≥ 500 as `error`, everything else as `info`.
 - The 401 entry point and the login failure handler also return Problem Details. Lexik's default JSON format is not used.
 - Validation errors: 422 with the extension member `violations: [{field, message}]`.
@@ -34,10 +37,10 @@ Shared codes (generic, not tied to a context):
 
 | Code | Status | Meaning |
 |---|---|---|
-| `4000` | 500 | Internal error (fallback) |
+| `4000` | 500 | Internal error (fallback); also any other 5xx HTTP exception, which keeps its status |
 | `4001` | 404 | Resource not found: every access denial of an authenticated principal and router 404 |
 | `4002` | 422 | Validation error |
-| `4003` | 400 | Malformed request (e.g. invalid JSON) |
+| `4003` | 400 | Malformed request (e.g. invalid JSON); also any 4xx HTTP exception without a code of its own, which keeps its status |
 | `4004` | 401 | Missing or invalid credentials (entry point, login failure) |
 | `4005` | 405 | Method not allowed |
 | `4006` | 415 | Unsupported media type |

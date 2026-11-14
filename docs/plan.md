@@ -22,7 +22,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 
 ## M3 – Shared kernel
 - [x] Command and query bus ports with in-process adapters (`SymfonyCommandBus`, `SymfonyQueryBus`; the locators in `config/services.yaml` are still empty)
-- [ ] `AbstractDomainException`, `#[DomainError]`, `ErrorType`, exception mappers, Problem Details (4xxx codes)
+- [x] `AbstractDomainException`, `#[DomainError]`, `ErrorType`, exception mappers, Problem Details (4xxx codes). `symfony/validator` added for the 4002 mapping. Left for M5/M6, when Symfony Security arrives: Security's `AccessDeniedException` in `HttpExceptionMapper`, the 401 entry point and the login failure handler
 - [ ] `ClockInterface`, ID generator, `TransactionInterface`, `AggregateRoot`, `DomainEvent`
 - [ ] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`
 - [ ] Response hardening (`nosniff`), 415 and 400 handling
