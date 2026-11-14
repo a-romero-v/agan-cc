@@ -105,7 +105,8 @@
             "@app:cs:check",
             "@app:analyse",
             "@app:deptrac",
-            "@app:test"
+            "@app:test",
+            "@app:behat"
         ],
         "app:db:reset": "@php bin/console app:db:reset --env=dev",
         "app:db:reset:test": "@php bin/console app:db:reset --env=test"

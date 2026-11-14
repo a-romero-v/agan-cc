@@ -63,7 +63,7 @@ Two checks guard it in `make qa`: `app:openapi:check-sync` fails when `docs/open
 
 Behat enforces the contract at runtime: `make behat` runs the acceptance tests as full HTTP round-trips through the kernel. The steps `the request body matches the OpenAPI spec` and `the response matches the OpenAPI spec` validate against `docs/openapi.yaml`. The response step checks the status code, the content type and the body; a status code the operation does not document fails the scenario. `OpenApiValidatorTest` proves that these steps really fail on a deviation. The request step is for valid requests only; a scenario that sends an invalid body on purpose leaves it out.
 
-_The first features arrive with the first endpoints (M3); Behat joins `make qa` then. Fixtures follow in M4._
+Behat is part of `make qa`. The first feature (`features/shared/errors.feature`) covers the generic errors; the features of the endpoints and the fixtures follow from M4 on.
 
 ## Architecture
 
