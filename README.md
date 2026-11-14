@@ -104,6 +104,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Tooling | Composer scripts only | Makefile on the host wrapping Docker Compose and the Composer scripts | PHP runs only in the container |
 | Tooling | PHP-CS-Fixer with `@Symfony`, risky rules off | Additionally `declare_strict_types` (the only risky rule) | Strict types are required in every file; the tool enforces it |
 | Tooling | No architecture check, no CI | Deptrac, `composer audit` and GitHub Actions in QA | Layer and context rules are enforced, not just documented |
+| Tests | Structure and naming are conventions only | `ConventionsTest` scans `src/` and fails on a misnamed or misplaced class | Deptrac checks dependencies, not names or locations |
 | API contract | Every operation spells out its error responses; path parameters are repeated | Shared `components.responses`, `parameters` and `headers` in `base.yaml`, referenced from the operations | Eight operations share the same error bodies; one definition keeps them identical |
 | API contract | One `bearerAuth` scheme, `security: []` globally | Two bearer schemes (`cartToken`, `jwt`) required globally; public operations opt out with `security: []` | Deny by default, also in the contract |
 | Tooling | `$projectDir` of the OpenAPI commands wired in `services.yaml` | `#[Autowire('%kernel.project_dir%')]` on the constructor | Same style as `ResetDatabaseCommand`; no service definitions needed |

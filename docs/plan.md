@@ -27,7 +27,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [x] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`; tag-based handler registration verified with a fixture handler (`DomainEventDeliveryTest`)
 - [x] Response hardening (`nosniff` on every response, `expose_php=0` in the image). 415 and 400 are mapped by `HttpExceptionMapper` (unit-tested in the mapper step); they can only occur end to end once an endpoint has a body, so their Behat scenarios move to M5
 - [x] First Behat feature (`features/shared/errors.feature`: router 404 as Problem Details, nothing echoed, `nosniff`); `app:behat` is part of `app:qa`. There is no route yet, so a 405 cannot occur: its scenario moves to M4
-- [ ] Architecture test for the structure and naming conventions (`tests/Unit/Architecture`), verified once with deliberately misplaced classes
+- [x] Architecture test for the structure and naming conventions (`tests/Unit/Architecture/ConventionsTest`). Verified once with a throwaway context of 15 classes: all 12 misplaced ones were reported, the 3 correct ones were not
 
 ## M4 – Product
 - [ ] `Product`, `Money`, `TaxRate`, repository, fixtures
