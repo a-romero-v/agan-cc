@@ -17,6 +17,21 @@ Feature: Errors are RFC 9457 Problem Details
       }
       """
 
+  Scenario: A method the route does not support is a 405 with the allowed methods
+    When I send a POST request to "/products"
+    Then the response status code should be 405
+    And the response header "Allow" should be "GET"
+    And the JSON response is:
+      """
+      {
+        "type": "about:blank",
+        "title": "Method Not Allowed",
+        "status": 405,
+        "detail": "Method not allowed.",
+        "errorCode": 4005
+      }
+      """
+
   Scenario: The error does not echo the request
     When I send a POST request to "/no-such-route/<script>alert(1)</script>" with body:
       """
