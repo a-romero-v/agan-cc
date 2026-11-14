@@ -112,6 +112,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Tests | One Behat step per HTTP method | One step with the method as argument (`I send a :method request to :url`) | Same wording in the features, less code |
 | CQRS | `CommandBusInterface::dispatch()` returns `mixed` | Returns `void` | Commands change state and return nothing; a controller that needs a body asks a query |
 | CQRS | The buses call `handle()` on an untyped service; a missing handler is a `RuntimeException` | The buses check that the handler has a `handle()` method; wiring mistakes are `LogicException`s | Passes PHPStan level 8 without an ignore; a wiring mistake is a programming error |
+| Domain | The domain calls `new \DateTimeImmutable()` and imports `symfony/uid` | Time and IDs come from ports (`ClockInterface`, `UuidGeneratorInterface`) with adapters in Infrastructure | Tests control time and IDs; the domain imports no library |
 | Database | PostgreSQL | SQLite | No extra service; persistence stays swappable |
 | Database | `app:db:reset` drops and re-creates the database | Drops all tables through the DBAL schema manager | DBAL cannot drop a SQLite database; dropping tables works on every platform |
 | Persistence | Auto-increment `int` plus `uuid` column | UUID primary key | One identity, generated before persisting |

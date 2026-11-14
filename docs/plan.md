@@ -23,7 +23,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 ## M3 – Shared kernel
 - [x] Command and query bus ports with in-process adapters (`SymfonyCommandBus`, `SymfonyQueryBus`; the locators in `config/services.yaml` are still empty)
 - [x] `AbstractDomainException`, `#[DomainError]`, `ErrorType`, exception mappers, Problem Details (4xxx codes). `symfony/validator` added for the 4002 mapping. Left for M5/M6, when Symfony Security arrives: Security's `AccessDeniedException` in `HttpExceptionMapper`, the 401 entry point and the login failure handler
-- [ ] `ClockInterface`, ID generator, `TransactionInterface`, `AggregateRoot`, `DomainEvent`
+- [x] `ClockInterface` (`SystemClock`), `UuidGeneratorInterface` (`SymfonyUuidGenerator`, UUID v7, `symfony/uid` added), `TransactionInterface` (from M1), `DomainEvent`. The `AggregateRoot` trait moves to M5: PHPStan rejects a trait that nothing uses (`trait.unused`), so it is added together with `Cart`. Test doubles for the ports (fixed clock, predictable IDs) are added with the first test that needs them
 - [ ] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`
 - [ ] Response hardening (`nosniff`), 415 and 400 handling
 - [ ] First Behat feature (generic errors as Problem Details, e.g. router 404 and 405); add `app:behat` to `app:qa`
@@ -35,7 +35,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [ ] `GET /products`, `GET /products/{productId}`
 
 ## M5 – Cart core for guests (AC1–AC4, guest part of AC5)
-- [ ] `Cart` aggregate, `CartItem`, `Quantity`, `CartOwner`, cart version, domain events
+- [ ] `Cart` aggregate, `CartItem`, `Quantity`, `CartOwner`, cart version, domain events; `AggregateRoot` trait (`recordEvent()` / `releaseEvents()`, from the reference) with a unit test
 - [ ] Persistence: records, mapper, repository, optimistic lock with an integration test (stale version fails with `Conflict`), in-memory repository
 - [ ] Ports `ProductCatalogInterface` and `StockReservationInterface` (always-succeeding stub)
 - [ ] `POST /carts` (guest) with cart token, cart-token authenticator, `CartVoter`, route-coverage test (integration suite), 404 for foreign carts (R6)
