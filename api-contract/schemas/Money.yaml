@@ -1,0 +1,25 @@
+Money:
+  description: An amount in the smallest unit of its currency (cents). Never a float.
+  type: object
+  required: [amount, currency]
+  properties:
+    amount:
+      type: integer
+      example: 999
+    currency:
+      type: string
+      description: ISO 4217 code
+      pattern: '^[A-Z]{3}$'
+      example: EUR
+
+MoneyBreakdown:
+  description: A gross amount with the net amount and the VAT it includes (gross = net + vat).
+  type: object
+  required: [gross, net, vat]
+  properties:
+    gross:
+      $ref: '#/components/schemas/Money'
+    net:
+      $ref: '#/components/schemas/Money'
+    vat:
+      $ref: '#/components/schemas/Money'

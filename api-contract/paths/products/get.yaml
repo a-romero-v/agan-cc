@@ -1,0 +1,17 @@
+/products/{productId}:
+  get:
+    tags: [Products]
+    summary: Get a product by ID
+    operationId: getProduct
+    security: []
+    parameters:
+      - $ref: '#/components/parameters/ProductId'
+    responses:
+      '200':
+        description: The product
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductView'
+      '404':
+        $ref: '#/components/responses/NotFound'

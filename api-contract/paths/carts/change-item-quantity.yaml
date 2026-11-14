@@ -1,0 +1,38 @@
+/carts/{cartId}/items/{itemId}:
+  patch:
+    tags: [Carts]
+    summary: Change the quantity of an item
+    description: |
+      Sets the absolute quantity. An increase reserves the additional stock synchronously;
+      a decrease releases stock asynchronously. The body is `application/json`, not a merge patch.
+    operationId: changeCartItemQuantity
+    parameters:
+      - $ref: '#/components/parameters/CartId'
+      - $ref: '#/components/parameters/ItemId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ChangeCartItemQuantityInput'
+    responses:
+      '200':
+        description: The updated cart
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartView'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '409':
+        $ref: '#/components/responses/Conflict'
+      '415':
+        $ref: '#/components/responses/UnsupportedMediaType'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '429':
+        $ref: '#/components/responses/TooManyRequests'

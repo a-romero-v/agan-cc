@@ -1,0 +1,46 @@
+/carts:
+  post:
+    tags: [Carts]
+    summary: Create a guest cart, or return the registered user's cart
+    description: |
+      Without credentials a new guest cart is created and its cart token is returned exactly once.
+      With a JWT the user's cart is returned, and created first if it does not exist (idempotent).
+      A present but invalid `Authorization` header is answered with 401; it never creates a guest cart.
+    operationId: createCart
+    security:
+      - {}
+      - jwt: []
+    responses:
+      '201':
+        description: Cart created
+        headers:
+          Location:
+            description: URL of the cart
+            schema:
+              type: string
+            example: /carts/019a7f3e-5b1c-7c3a-9d2e-4f6a8b0c1d2e
+          Cache-Control:
+            description: Always `no-store`, because the body can carry the cart token
+            schema:
+              type: string
+            example: no-store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatedCartView'
+      '200':
+        description: The registered user already has a cart
+        headers:
+          Location:
+            description: URL of the cart
+            schema:
+              type: string
+            example: /carts/019a7f3e-5b1c-7c3a-9d2e-4f6a8b0c1d2e
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatedCartView'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '429':
+        $ref: '#/components/responses/TooManyRequests'

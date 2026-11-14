@@ -1,0 +1,10 @@
+ChangeCartItemQuantityInput:
+  type: object
+  required: [quantity]
+  properties:
+    quantity:
+      type: integer
+      description: The new absolute quantity
+      minimum: 1
+      maximum: 99
+      example: 7

@@ -1,0 +1,171 @@
+openapi: '3.0.3'
+
+info:
+  title: Shopping Cart API
+  description: |
+    Shopping cart REST API: guest and registered carts, a read-only product catalogue and stock reservation.
+
+    All monetary amounts are integers in the smallest currency unit (cents) plus a currency.
+    All IDs are UUIDs. Errors are RFC 9457 Problem Details with a numeric `errorCode`.
+  version: '1.0.0'
+
+servers:
+  - url: http://localhost:8000
+    description: Local dev server
+
+tags:
+  - name: Carts
+    description: Create, view and modify a cart
+  - name: Products
+    description: Read-only product catalogue
+  - name: Auth
+    description: Login for registered users
+
+# Deny by default: every operation requires a cart token or a JWT.
+# Public operations opt out explicitly with `security: []`.
+security:
+  - cartToken: []
+  - jwt: []
+
+components:
+  securitySchemes:
+    cartToken:
+      type: http
+      scheme: bearer
+      description: |
+        Guest access. The opaque cart token (prefix `cart_`) is returned once by `POST /carts`
+        and grants access to exactly that cart.
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Registered users. The JWT is issued by `POST /auth/login`.
+
+  parameters:
+    CartId:
+      name: cartId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: '019a7f3e-5b1c-7c3a-9d2e-4f6a8b0c1d2e'
+    ItemId:
+      name: itemId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: '019a7f3e-6c2d-7d4b-8e3f-5a7b9c1d2e3f'
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      example: '019a7f3e-4a0b-7b29-8c1d-3e5f7a9b0c1d'
+
+  headers:
+    RetryAfter:
+      description: Seconds to wait before the next attempt
+      schema:
+        type: integer
+        minimum: 1
+      example: 30
+
+  # Shared error responses. Every error body is a ProblemDetails document.
+  responses:
+    BadRequest:
+      description: Malformed request, e.g. invalid JSON (`errorCode` 4003)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Bad Request
+            status: 400
+            detail: The request body is not valid JSON.
+            errorCode: 4003
+    Unauthorized:
+      description: Missing or invalid credentials (`errorCode` 4004)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Unauthorized
+            status: 401
+            detail: Missing or invalid credentials.
+            errorCode: 4004
+    NotFound:
+      description: |
+        The resource does not exist or belongs to someone else. Both cases are answered
+        identically, so the existence of a foreign cart is not revealed.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Not Found
+            status: 404
+            detail: Resource not found.
+            errorCode: 4001
+    Conflict:
+      description: Insufficient stock, or the cart was modified concurrently
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    UnsupportedMediaType:
+      description: The request body is not `application/json` (`errorCode` 4006)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Unsupported Media Type
+            status: 415
+            detail: The request body must be application/json.
+            errorCode: 4006
+    UnprocessableEntity:
+      description: |
+        Validation error (`errorCode` 4002, with `violations`) or a violated business rule
+        (context-specific `errorCode`, without `violations`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Unprocessable Content
+            status: 422
+            detail: The request is invalid.
+            errorCode: 4002
+            violations:
+              - field: quantity
+                message: This value should be between 1 and 99.
+    TooManyRequests:
+      description: Rate limit exceeded (`errorCode` 4007)
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: about:blank
+            title: Too Many Requests
+            status: 429
+            detail: Rate limit exceeded.
+            errorCode: 4007
+
+  schemas: {}   # merged by build command
+
+paths: {}       # merged by build command

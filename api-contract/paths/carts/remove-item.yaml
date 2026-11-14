@@ -1,0 +1,20 @@
+/carts/{cartId}/items/{itemId}:
+  delete:
+    tags: [Carts]
+    summary: Remove an item from the cart
+    description: The item's stock reservation is released asynchronously.
+    operationId: removeCartItem
+    parameters:
+      - $ref: '#/components/parameters/CartId'
+      - $ref: '#/components/parameters/ItemId'
+    responses:
+      '204':
+        description: Item removed
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '409':
+        $ref: '#/components/responses/Conflict'
+      '429':
+        $ref: '#/components/responses/TooManyRequests'

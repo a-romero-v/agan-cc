@@ -1,0 +1,38 @@
+CartItemView:
+  type: object
+  required: [id, productId, productName, quantity, unitPrice, taxRateBp, total, reserved]
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: The item ID used in the item endpoints
+      example: '019a7f3e-6c2d-7d4b-8e3f-5a7b9c1d2e3f'
+    productId:
+      type: string
+      format: uuid
+      example: '019a7f3e-4a0b-7b29-8c1d-3e5f7a9b0c1d'
+    productName:
+      type: string
+      example: Espresso Cup
+    quantity:
+      type: integer
+      minimum: 1
+      maximum: 99
+      example: 3
+    unitPrice:
+      description: Current gross catalogue price, not a snapshot from when the item was added
+      allOf:
+        - $ref: '#/components/schemas/Money'
+    taxRateBp:
+      type: integer
+      description: VAT rate in basis points (1900 = 19 %)
+      minimum: 0
+      example: 1900
+    total:
+      description: Line total (unit price × quantity) with its net amount and VAT
+      allOf:
+        - $ref: '#/components/schemas/MoneyBreakdown'
+    reserved:
+      type: boolean
+      description: Whether stock is currently reserved for this item. Items that are not reserved are excluded from the cart totals.
+      example: true

@@ -86,7 +86,12 @@
         "app:test:unit": "php bin/phpunit --testsuite unit",
         "app:test:integration": "php bin/phpunit --testsuite integration",
         "app:test:clear:cache": "@php bin/console cache:clear --env=test",
+        "app:openapi:build": "@php bin/console app:openapi:build",
+        "app:openapi:check-sync": "@php bin/console app:openapi:check-sync",
+        "app:validate:openapi": "@php bin/validate-openapi docs/openapi.yaml",
         "app:qa": [
+            "@app:openapi:check-sync",
+            "@app:validate:openapi",
             "@composer audit",
             "@app:cs:check",
             "@app:analyse",

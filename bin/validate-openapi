@@ -1,0 +1,177 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
+
+$file = $argv[1] ?? __DIR__ . '/../docs/openapi.yaml';
+
+if (!file_exists($file)) {
+    err("File not found: $file");
+    exit(1);
+}
+
+// --- Parse YAML ---
+try {
+    $spec = Yaml::parseFile($file);
+} catch (ParseException $e) {
+    err('YAML syntax error: ' . $e->getMessage());
+    exit(1);
+}
+
+if (!is_array($spec)) {
+    err('Expected a YAML mapping at the root level.');
+    exit(1);
+}
+
+$errors = [];
+
+// --- openapi field ---
+if (!isset($spec['openapi'])) {
+    $errors[] = 'Missing required field: openapi';
+} elseif (!preg_match('/^3\.\d+\.\d+$/', (string) $spec['openapi'])) {
+    $errors[] = "Field \"openapi\" must be a 3.x.y version string, got: {$spec['openapi']}";
+}
+
+// --- info ---
+if (!isset($spec['info'])) {
+    $errors[] = 'Missing required field: info';
+} else {
+    foreach (['title', 'version'] as $field) {
+        if (empty($spec['info'][$field])) {
+            $errors[] = "Missing required field: info.$field";
+        }
+    }
+}
+
+// --- paths ---
+if (!array_key_exists('paths', $spec)) {
+    $errors[] = 'Missing required field: paths';
+} else {
+    $validMethods = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
+    $operationIds = [];
+
+    foreach ($spec['paths'] as $path => $pathItem) {
+        if (!str_starts_with((string) $path, '/')) {
+            $errors[] = "Path must start with \"/\": $path";
+        }
+
+        foreach ($pathItem as $method => $operation) {
+            if (!in_array($method, $validMethods, true)) {
+                continue;
+            }
+
+            $loc = "$method $path";
+
+            if (!isset($operation['responses']) || !is_array($operation['responses'])) {
+                $errors[] = "Operation \"$loc\" is missing \"responses\"";
+            }
+
+            if (isset($operation['operationId'])) {
+                $id = $operation['operationId'];
+                if (isset($operationIds[$id])) {
+                    $errors[] = "Duplicate operationId \"$id\" on \"$loc\" (already used by \"{$operationIds[$id]}\")";
+                } else {
+                    $operationIds[$id] = $loc;
+                }
+            }
+        }
+    }
+}
+
+// --- resolve all $refs ---
+$refs = collectRefs($spec);
+foreach ($refs as $ref) {
+    if (!str_starts_with($ref, '#/')) {
+        // External refs not checked here
+        continue;
+    }
+
+    $parts = array_filter(explode('/', ltrim($ref, '#/')));
+    $node = $spec;
+    foreach ($parts as $part) {
+        $part = str_replace(['~1', '~0'], ['/', '~'], $part);
+        if (!is_array($node) || !array_key_exists($part, $node)) {
+            $errors[] = "Unresolvable \$ref: $ref";
+            break;
+        }
+        $node = $node[$part];
+    }
+}
+
+// --- security scheme references ---
+$definedSchemes = array_keys($spec['components']['securitySchemes'] ?? []);
+$securityRequirements = collectSecurityRequirements($spec);
+foreach ($securityRequirements as [$schemeName, $context]) {
+    if (!in_array($schemeName, $definedSchemes, true)) {
+        $errors[] = "Undefined security scheme \"$schemeName\" referenced in $context";
+    }
+}
+
+// --- Report ---
+if ($errors !== []) {
+    echo "OpenAPI validation failed: $file\n\n";
+    foreach ($errors as $error) {
+        echo "  [x] $error\n";
+    }
+    echo "\n" . count($errors) . " error(s) found.\n";
+    exit(1);
+}
+
+echo "OpenAPI spec is valid: $file\n";
+exit(0);
+
+// ---------------------------------------------------------------------------
+
+function collectRefs(mixed $node): array
+{
+    if (!is_array($node)) {
+        return [];
+    }
+
+    $refs = [];
+    foreach ($node as $key => $value) {
+        if ($key === '$ref' && is_string($value)) {
+            $refs[] = $value;
+        } else {
+            $refs = array_merge($refs, collectRefs($value));
+        }
+    }
+
+    return $refs;
+}
+
+function collectSecurityRequirements(array $spec): array
+{
+    $found = [];
+
+    foreach ($spec['security'] ?? [] as $req) {
+        foreach (array_keys($req) as $scheme) {
+            $found[] = [$scheme, 'global security'];
+        }
+    }
+
+    foreach ($spec['paths'] ?? [] as $path => $pathItem) {
+        foreach ($pathItem as $method => $operation) {
+            if (!is_array($operation)) {
+                continue;
+            }
+            foreach ($operation['security'] ?? [] as $req) {
+                foreach (array_keys($req) as $scheme) {
+                    $found[] = [$scheme, "$method $path"];
+                }
+            }
+        }
+    }
+
+    return $found;
+}
+
+function err(string $message): void
+{
+    fwrite(STDERR, $message . "\n");
+}

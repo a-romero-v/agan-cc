@@ -1,0 +1,21 @@
+/carts/{cartId}:
+  get:
+    tags: [Carts]
+    summary: View a cart with its items, reservation status and totals
+    description: Viewing a cart changes nothing; in particular it does not extend reservations.
+    operationId: getCart
+    parameters:
+      - $ref: '#/components/parameters/CartId'
+    responses:
+      '200':
+        description: The cart
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartView'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '429':
+        $ref: '#/components/responses/TooManyRequests'

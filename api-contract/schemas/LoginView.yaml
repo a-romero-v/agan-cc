@@ -1,0 +1,8 @@
+LoginView:
+  type: object
+  required: [token]
+  properties:
+    token:
+      type: string
+      description: JWT, valid for one hour
+      example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...

@@ -5,7 +5,7 @@ COMPOSE = docker compose
 EXEC    = $(COMPOSE) exec php
 
 .DEFAULT_GOAL := help
-.PHONY: help setup up down shell db-reset qa test analyse deptrac cs-fix
+.PHONY: help setup up down shell db-reset qa test analyse deptrac cs-fix openapi
 
 help: ## List the available targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  %-10s %s\n", $$1, $$2}'
@@ -46,3 +46,6 @@ deptrac: ## Check the architecture rules
 
 cs-fix: ## Fix the code style
 	$(EXEC) composer app:cs:fix
+
+openapi: ## Regenerate docs/openapi.yaml from api-contract/
+	$(EXEC) composer app:openapi:build

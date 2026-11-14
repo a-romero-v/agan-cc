@@ -1,0 +1,15 @@
+/products:
+  get:
+    tags: [Products]
+    summary: List all products
+    operationId: listProducts
+    security: []
+    responses:
+      '200':
+        description: The product catalogue
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductView'

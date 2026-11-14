@@ -1,0 +1,28 @@
+CartView:
+  type: object
+  required: [id, items, totals]
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: '019a7f3e-5b1c-7c3a-9d2e-4f6a8b0c1d2e'
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/CartItemView'
+    totals:
+      description: 'Sum over all reserved items. Items with `reserved: false` are excluded.'
+      allOf:
+        - $ref: '#/components/schemas/MoneyBreakdown'
+
+CreatedCartView:
+  description: The cart as returned by `POST /carts`. Guests additionally receive the cart token, exactly once.
+  allOf:
+    - $ref: '#/components/schemas/CartView'
+    - type: object
+      properties:
+        token:
+          type: string
+          description: 'Cart token for guests (`Authorization: Bearer <token>`). Absent for registered users.'
+          pattern: '^cart_'
+          example: cart_3q2-7wEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE

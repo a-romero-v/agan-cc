@@ -17,7 +17,7 @@ Progress tracker. Each step ends with a green `make qa` and one or more commits.
 Items marked "verify at scaffold" in `.claude/rules/` are verified in the milestone that builds them; M1 covers the database and Docker ones.
 
 ## M2 – API contract
-- [ ] `api-contract/` (base, paths, schemas incl. `ProblemDetails`), `app:openapi:build`, `app:openapi:check-sync`, `bin/validate-openapi`
+- [x] `api-contract/` (base, paths, schemas incl. `ProblemDetails`), `app:openapi:build`, `app:openapi:check-sync`, `bin/validate-openapi`
 - [ ] Behat steps validating requests and responses against the contract
 
 ## M3 – Shared kernel

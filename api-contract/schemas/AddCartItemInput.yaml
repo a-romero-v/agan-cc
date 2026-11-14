@@ -1,0 +1,13 @@
+AddCartItemInput:
+  type: object
+  required: [productId, quantity]
+  properties:
+    productId:
+      type: string
+      format: uuid
+      example: '019a7f3e-4a0b-7b29-8c1d-3e5f7a9b0c1d'
+    quantity:
+      type: integer
+      minimum: 1
+      maximum: 99
+      example: 2

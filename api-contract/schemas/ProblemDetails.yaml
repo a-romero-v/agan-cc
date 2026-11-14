@@ -1,0 +1,40 @@
+ProblemDetails:
+  description: RFC 9457 Problem Details, extended by `errorCode` and, for validation errors, `violations`.
+  type: object
+  required: [type, title, status, errorCode]
+  properties:
+    type:
+      type: string
+      description: URI reference identifying the problem type
+      example: about:blank
+    title:
+      type: string
+      example: Unprocessable Content
+    status:
+      type: integer
+      description: The HTTP status code of this response
+      example: 422
+    detail:
+      type: string
+      example: Quantity must be between 1 and 99.
+    errorCode:
+      type: integer
+      description: |
+        Stable numeric code: 1xxx Cart, 2xxx Product, 3xxx User, 4xxx generic, 5xxx Inventory.
+      example: 4002
+    violations:
+      type: array
+      description: Present on validation errors only (`errorCode` 4002)
+      items:
+        $ref: '#/components/schemas/Violation'
+
+Violation:
+  type: object
+  required: [field, message]
+  properties:
+    field:
+      type: string
+      example: quantity
+    message:
+      type: string
+      example: This value should be between 1 and 99.

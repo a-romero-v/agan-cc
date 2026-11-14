@@ -1,0 +1,26 @@
+/auth/login:
+  post:
+    tags: [Auth]
+    summary: Log in and receive a JWT
+    description: A failed login is answered identically for an unknown user and a wrong password.
+    operationId: login
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LoginInput'
+    responses:
+      '200':
+        description: JWT issued
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginView'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '429':
+        $ref: '#/components/responses/TooManyRequests'

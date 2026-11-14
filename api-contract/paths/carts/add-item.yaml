@@ -1,0 +1,49 @@
+/carts/{cartId}/items:
+  post:
+    tags: [Carts]
+    summary: Add an item to the cart
+    description: |
+      Adding a product that is already in the cart increases the quantity of the existing item.
+      Stock for the resulting quantity is reserved synchronously.
+    operationId: addCartItem
+    parameters:
+      - $ref: '#/components/parameters/CartId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AddCartItemInput'
+    responses:
+      '201':
+        description: A new item was created
+        headers:
+          Location:
+            description: URL of the new item
+            schema:
+              type: string
+            example: /carts/019a7f3e-5b1c-7c3a-9d2e-4f6a8b0c1d2e/items/019a7f3e-6c2d-7d4b-8e3f-5a7b9c1d2e3f
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartView'
+      '200':
+        description: The quantity of the existing item was increased
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartView'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Unauthorized'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '409':
+        $ref: '#/components/responses/Conflict'
+      '415':
+        $ref: '#/components/responses/UnsupportedMediaType'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '429':
+        $ref: '#/components/responses/TooManyRequests'
