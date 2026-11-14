@@ -16,11 +16,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Rebuilds the database of the current environment from scratch.
  *
- * Adapted from the reference project, which drops and re-creates the whole database.
- * DBAL cannot do that for SQLite, so all tables are dropped through the schema
- * manager instead, including tables without an entity (migration versions, message
- * queue). This works on every platform; SQLite creates the database file on the
- * first connection.
+ * DBAL cannot drop and re-create a SQLite database, so all tables are dropped
+ * through the schema manager instead, including tables without an entity
+ * (migration versions, message queue). This works on every platform; SQLite
+ * creates the database file on the first connection.
  */
 #[AsCommand(name: 'app:db:reset', description: 'Drop all tables, run the migrations and set up the message transports (dev and test only)')]
 final class ResetDatabaseCommand extends Command

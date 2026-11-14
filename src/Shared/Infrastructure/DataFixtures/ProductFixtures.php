@@ -9,7 +9,7 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
 /**
- * The demo catalogue of the dev database (as in the reference).
+ * The demo catalogue of the dev database.
  *
  * The IDs are fixed, so the examples in the README keep working after every reset.
  * All prices are gross, in EUR, with 19 % VAT (SPEC, D1).

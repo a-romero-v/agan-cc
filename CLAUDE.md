@@ -102,6 +102,7 @@ Security is a first-class requirement, on a par with the business rules. Details
 
 ## Code rules
 - `declare(strict_types=1);` everywhere. Classes `final`, properties `readonly` unless there is a reason (see `.claude/rules/persistence.md` for `*Record`).
+- No comments about the reference project in code, tests or configuration. What is taken from it or deviates from it is recorded only in the README ("Deviations from the Reference Project").
 - No setters in the domain. Named constructors and intention-revealing methods (`$cart->addItem(...)`).
 - No PHPStan baseline. No `@phpstan-ignore` without a comment explaining why.
 - Never weaken tests, Deptrac rules or the PHPStan level to get something green. Ask before adding dependencies.

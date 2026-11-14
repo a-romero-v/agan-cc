@@ -10,7 +10,7 @@ use App\Shared\Domain\ValueObject\Money;
 use App\Shared\Domain\ValueObject\TaxRate;
 
 /**
- * Translates a stored record into the domain model (as in the reference).
+ * Translates a stored record into the domain model.
  * There is no toRecord(): the application never writes a product.
  */
 final readonly class ProductMapper

@@ -11,9 +11,8 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Validates request and response bodies against docs/openapi.yaml.
  *
- * Adapted from the reference project. It is stricter in three points: a status
- * code that the operation does not document is a violation instead of being
- * skipped, the response content type must be one the contract lists, and a
+ * It is strict: a status code that the operation does not document is a
+ * violation, the response content type must be one the contract lists, and a
  * response documented without a body must have none. `$ref`s are resolved for
  * all components (schemas, responses), because the error responses are shared.
  */

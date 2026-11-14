@@ -10,9 +10,8 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Merges the fragments in api-contract/ into one OpenAPI document.
  *
- * Taken from the reference project. base.yaml provides everything except the
- * schemas and the paths, which are collected from one file per schema and
- * one file per operation.
+ * base.yaml provides everything except the schemas and the paths, which are
+ * collected from one file per schema and one file per operation.
  */
 final readonly class OpenApiBuilder
 {

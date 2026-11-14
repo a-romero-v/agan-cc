@@ -16,8 +16,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
  * HTTP steps: full round-trips through the kernel, snapshot assertions on the
  * JSON response and validation against the API contract.
  *
- * Adapted from the reference project. Authentication and data setup steps are
- * added together with the features that need them.
+ * Authentication steps are added together with the features that need them;
+ * data setup lives in DatabaseContext.
  */
 final class ApiContext implements Context
 {
