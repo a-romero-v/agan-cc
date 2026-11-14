@@ -1,0 +1,25 @@
+ProductListView:
+  description: One page of the product catalogue, ordered by name.
+  type: object
+  required: [items, page, perPage, total]
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/ProductView'
+    page:
+      type: integer
+      description: The requested page, starting at 1
+      minimum: 1
+      example: 1
+    perPage:
+      type: integer
+      description: The requested page size
+      minimum: 1
+      maximum: 100
+      example: 20
+    total:
+      type: integer
+      description: Number of products in the whole catalogue
+      minimum: 0
+      example: 57

@@ -19,6 +19,7 @@ final class ProductRepositoryTest extends KernelTestCase
 {
     private const string CUP = '019a7f3e-4a0b-7b29-8c1d-000000000001';
     private const string FILTERS = '019a7f3e-4a0b-7b29-8c1d-000000000002';
+    private const string GRINDER = '019a7f3e-4a0b-7b29-8c1d-000000000003';
     private const string UNKNOWN = '019a7f3e-4a0b-7b29-8c1d-00000000ffff';
 
     private EntityManagerInterface $em;
@@ -65,20 +66,53 @@ final class ProductRepositoryTest extends KernelTestCase
     }
 
     #[Test]
-    public function itListsTheWholeCatalogueOrderedByName(): void
+    public function itReturnsASliceOfTheCatalogueOrderedByName(): void
     {
+        $this->store(self::GRINDER, 'Grinder', 4999);
         $this->store(self::CUP, 'Espresso Cup', 999);
         $this->store(self::FILTERS, 'Coffee Filter Papers', 100);
 
-        $names = array_map(static fn (Product $product): string => $product->name(), $this->repository->findAll());
-
-        self::assertSame(['Coffee Filter Papers', 'Espresso Cup'], $names);
+        self::assertSame(['Coffee Filter Papers', 'Espresso Cup'], $this->names($this->repository->findSlice(0, 2)));
+        self::assertSame(['Grinder'], $this->names($this->repository->findSlice(2, 2)));
+        self::assertSame([], $this->repository->findSlice(4, 2));
     }
 
     #[Test]
-    public function itListsNothingWhenTheCatalogueIsEmpty(): void
+    public function productsWithTheSameNameKeepAStableOrderAcrossSlices(): void
     {
-        self::assertSame([], $this->repository->findAll());
+        $this->store(self::GRINDER, 'Espresso Cup', 999);
+        $this->store(self::CUP, 'Espresso Cup', 999);
+        $this->store(self::FILTERS, 'Espresso Cup', 999);
+
+        $ids = [];
+        foreach ([0, 1, 2] as $offset) {
+            foreach ($this->repository->findSlice($offset, 1) as $product) {
+                $ids[] = $product->id()->value();
+            }
+        }
+
+        self::assertSame([self::CUP, self::FILTERS, self::GRINDER], $ids);
+    }
+
+    #[Test]
+    public function itCountsTheWholeCatalogue(): void
+    {
+        self::assertSame(0, $this->repository->count());
+
+        $this->store(self::CUP, 'Espresso Cup', 999);
+        $this->store(self::FILTERS, 'Coffee Filter Papers', 100);
+
+        self::assertSame(2, $this->repository->count());
+    }
+
+    /**
+     * @param list<Product> $products
+     *
+     * @return list<string>
+     */
+    private function names(array $products): array
+    {
+        return array_map(static fn (Product $product): string => $product->name(), $products);
     }
 
     private function store(string $id, string $name, int $priceAmount): void

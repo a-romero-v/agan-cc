@@ -354,6 +354,35 @@ components:
         message:
           type: string
           example: 'This value should be between 1 and 99.'
+    ProductListView:
+      description: 'One page of the product catalogue, ordered by name.'
+      type: object
+      required:
+        - items
+        - page
+        - perPage
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductView'
+        page:
+          type: integer
+          description: 'The requested page, starting at 1'
+          minimum: 1
+          example: 1
+        perPage:
+          type: integer
+          description: 'The requested page size'
+          minimum: 1
+          maximum: 100
+          example: 20
+        total:
+          type: integer
+          description: 'Number of products in the whole catalogue'
+          minimum: 0
+          example: 57
     ProductView:
       type: object
       required:
@@ -608,15 +637,34 @@ paths:
     get:
       tags:
         - Products
-      summary: 'List all products'
+      summary: 'List the products, one page at a time'
+      description: "Ordered by name. A page behind the last one is not an error: it has no items.\n"
       operationId: listProducts
       security: []
+      parameters:
+        -
+          name: page
+          in: query
+          description: 'Page number, starting at 1'
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        -
+          name: perPage
+          in: query
+          description: 'Number of products per page'
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         200:
-          description: 'The product catalogue'
+          description: 'One page of the product catalogue'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProductView'
+                $ref: '#/components/schemas/ProductListView'
+        422:
+          $ref: '#/components/responses/UnprocessableEntity'

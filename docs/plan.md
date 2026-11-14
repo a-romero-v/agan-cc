@@ -31,10 +31,12 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [x] Architecture test for the structure and naming conventions (`tests/Unit/Architecture/ConventionsTest`). Verified once with a throwaway context of 15 classes: all 12 misplaced ones were reported, the 3 correct ones were not
 
 ## M4 – Product
-- [x] `Product`, `ProductId`, repository port with the Doctrine adapter (read-only: `findById`, `findAll`), table `product`, dev fixtures through DoctrineFixturesBundle (`app:fixtures:load`, part of `app:db:reset` for dev). `Money` and `TaxRate` live in `Shared/Domain/ValueObject`, because Cart needs them too; the net/VAT calculation (R8) is added with the cart view in M5. The in-memory repository is added with the first handler test (`GET /products`). For M5: the "products by IDs" query needs a `findByIds()` on the port
+- [x] `Product`, `ProductId`, repository port with the Doctrine adapter (read-only: `findById`, `findAll`; the latter was replaced by pagination, see below), table `product`, dev fixtures through DoctrineFixturesBundle (`app:fixtures:load`, part of `app:db:reset` for dev). `Money` and `TaxRate` live in `Shared/Domain/ValueObject`, because Cart needs them too; the net/VAT calculation (R8) is added with the cart view in M5. The in-memory repository is added with the first handler test (`GET /products`). For M5: the "products by IDs" query needs a `findByIds()` on the port
 - [x] `tests/Behat/DatabaseContext`: reset before every scenario through the ORM purger (no PostgreSQL specifics needed with SQLite and UUID keys) and the step `the following products exist:` (columns `id`, `name`, `price` in cents; EUR, 19 %)
 - [x] `GET /products`, `GET /products/{productId}` (`ProductNotFoundException`, `errorCode` 2001). `MoneyView` lives in `Shared/Application/Query/ReadModel` for the cart view to reuse. Controllers are plain `#[AsController]` classes returning `JsonResponse` with the read model (public properties, no serializer). For M5/M6: once Symfony Security is installed, the product routes must be declared public; the product features send no credentials and will fail otherwise
 - [x] Behat scenario for 405 (`errorCode` 4005, `Allow` header) on a product route, added to `features/shared/errors.feature`
+
+- [x] Pagination for `GET /products` (added after M4, a change to the concept: the list loaded the whole catalogue). Offset paging with `page` and `perPage` in an envelope `ProductListView`; the port has `findSlice()` and `count()` instead of `findAll()`. `symfony/serializer`, `symfony/property-access` and `symfony/property-info` were added for `#[MapQueryString]`; M5 reuses them for `#[MapRequestPayload]`
 
 ## M5 – Cart core for guests (AC1–AC4, guest part of AC5)
 - [ ] `Cart` aggregate, `CartItem`, `Quantity`, `CartOwner`, cart version, domain events; `AggregateRoot` trait (`recordEvent()` / `releaseEvents()`, from the reference) with a unit test
@@ -43,7 +45,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [ ] `POST /carts` (guest) with cart token, cart-token authenticator, `CartVoter`, route-coverage test (integration suite), 404 for foreign carts (R6)
 - [ ] View cart with totals (AC4, R8)
 - [ ] Add item (AC1), remove item (AC2), change quantity (AC3)
-- [ ] Behat scenarios for 415 (wrong content type) and 400 (malformed JSON) on the first endpoint with a body; `#[MapRequestPayload]` needs `symfony/serializer` (ask before adding)
+- [ ] Behat scenarios for 415 (wrong content type) and 400 (malformed JSON) on the first endpoint with a body
 
 ## M6 – Registered users and rate limits (AC5, AC7)
 - [ ] `User` context, `POST /auth/login` (JWT), uniform login failure

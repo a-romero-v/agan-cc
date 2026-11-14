@@ -27,11 +27,17 @@ final readonly class ProductRepository implements ProductRepositoryInterface
         return null !== $record ? $this->mapper->toDomain($record) : null;
     }
 
-    public function findAll(): array
+    public function findSlice(int $offset, int $limit): array
     {
-        // The ID as second criterion keeps the order stable for products with the same name.
-        $records = $this->em->getRepository(ProductRecord::class)->findBy([], ['name' => 'ASC', 'id' => 'ASC']);
+        // The ID as second criterion keeps the order stable for products with the same name;
+        // without it a product could show up on two pages or on none.
+        $records = $this->em->getRepository(ProductRecord::class)->findBy([], ['name' => 'ASC', 'id' => 'ASC'], $limit, $offset);
 
         return array_map($this->mapper->toDomain(...), $records);
+    }
+
+    public function count(): int
+    {
+        return $this->em->getRepository(ProductRecord::class)->count();
     }
 }

@@ -97,7 +97,7 @@ The client answered the open questions on 2026-11-13. Their priority: code quali
 | PATCH  | `/carts/{cartId}/items/{itemId}`   | Change quantity (`quantity`)                | 200 |
 | DELETE | `/carts/{cartId}/items/{itemId}`   | Remove an item                              | 204 |
 | POST   | `/auth/login`                      | Login, returns a JWT                        | 200 |
-| GET    | `/products`                        | Product list                                | 200 |
+| GET    | `/products`                        | Product list, paginated (`page`, `perPage`) | 200 |
 | GET    | `/products/{productId}`            | Product detail                              | 200 |
 
 **Authentication**
@@ -120,7 +120,7 @@ The cart endpoints behave identically for both groups.
 | 405    | Method not allowed |
 | 409    | Insufficient stock (R9), or the cart was modified concurrently |
 | 415    | Wrong content type |
-| 422    | Validation error, e.g. quantity out of range, or unknown `productId` in a request body (R1) |
+| 422    | Validation error, e.g. quantity out of range or an invalid `page` / `perPage`, or unknown `productId` in a request body (R1) |
 | 429    | Rate limit exceeded (login, guest cart creation, failed token authentication); includes `Retry-After` |
 | 500    | Unexpected error, without internals |
 

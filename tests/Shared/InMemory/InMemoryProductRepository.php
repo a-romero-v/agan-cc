@@ -26,11 +26,16 @@ final class InMemoryProductRepository implements ProductRepositoryInterface
         return array_find($this->products, static fn (Product $product): bool => $product->id()->equals($id));
     }
 
-    public function findAll(): array
+    public function findSlice(int $offset, int $limit): array
     {
         $products = $this->products;
         usort($products, static fn (Product $a, Product $b): int => [$a->name(), $a->id()->value()] <=> [$b->name(), $b->id()->value()]);
 
-        return $products;
+        return \array_slice($products, $offset, $limit);
+    }
+
+    public function count(): int
+    {
+        return \count($this->products);
     }
 }
