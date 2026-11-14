@@ -45,7 +45,7 @@ Claude Code runs on the host, PHP runs only in the Docker container. **Never run
 - `composer app:analyse` — PHPStan level 8 on `src/` (warms the dev cache itself)
 - `composer app:deptrac` — two runs: `deptrac.yaml` (layer direction) and `deptrac-contexts.php` (context boundaries). A new context must be added to the list in `deptrac-contexts.php`.
 - `composer app:cs:check`, `composer app:cs:fix` — PHP-CS-Fixer, `@Symfony` plus `declare_strict_types`
-- `composer app:db:reset` / `composer app:db:reset:test`, `composer app:test:clear:cache`
+- `composer app:db:reset` (dev; also loads the fixtures through `composer app:fixtures:load`) / `composer app:db:reset:test`, `composer app:test:clear:cache`
 - `composer app:openapi:build` — regenerate `docs/openapi.yaml`
 
 New workflows get a Composer script first, then a Make target if needed on the host.

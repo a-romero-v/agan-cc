@@ -31,7 +31,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [x] Architecture test for the structure and naming conventions (`tests/Unit/Architecture/ConventionsTest`). Verified once with a throwaway context of 15 classes: all 12 misplaced ones were reported, the 3 correct ones were not
 
 ## M4 – Product
-- [ ] `Product`, `Money`, `TaxRate`, repository, fixtures
+- [x] `Product`, `ProductId`, repository port with the Doctrine adapter (read-only: `findById`, `findAll`), table `product`, dev fixtures through DoctrineFixturesBundle (`app:fixtures:load`, part of `app:db:reset` for dev). `Money` and `TaxRate` live in `Shared/Domain/ValueObject`, because Cart needs them too; the net/VAT calculation (R8) is added with the cart view in M5. The in-memory repository is added with the first handler test (next step but one). For M5: the "products by IDs" query needs a `findByIds()` on the port
 - [ ] `tests/Behat/DatabaseContext` (reset per scenario, rewritten for SQLite) and the data setup steps
 - [ ] `GET /products`, `GET /products/{productId}`
 - [ ] Behat scenario for 405 (`errorCode` 4005, `Allow` header) on a product route, added to `features/shared/errors.feature`

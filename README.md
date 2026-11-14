@@ -19,6 +19,7 @@ A shopping cart REST API built with Symfony. It demonstrates hexagonal architect
 | Database | SQLite 3 |
 | Messaging | Symfony Messenger with the Doctrine transport |
 | Logging | Monolog |
+| Dev fixtures | DoctrineFixturesBundle 4 |
 
 | PHPUnit | 13 |
 | Behat | 4 (acceptance tests), with `opis/json-schema` for the contract validation |
@@ -33,8 +34,8 @@ _Further tools are added here as they are introduced._
 Requirements: Docker with Docker Compose, and `make`. PHP and Composer run only inside the container.
 
 ```sh
-make setup     # build the image, install the dependencies, reset the databases, start the containers
-make db-reset  # drop all tables, run the migrations again (dev and test), restart the worker
+make setup     # build the image, install the dependencies, reset the databases, load the dev fixtures, start the containers
+make db-reset  # drop all tables, run the migrations again (dev and test), load the dev fixtures, restart the worker
 make openapi   # regenerate docs/openapi.yaml from api-contract/
 make help      # list all targets
 ```
@@ -51,7 +52,7 @@ make qa      # everything below, fails fast
 
 GitHub Actions runs the same two commands, `make setup` and `make qa`, on every push and pull request (`.github/workflows/qa.yaml`).
 
-The database is SQLite, one file per environment: `var/data_dev.db` and `var/data_test.db`.
+The database is SQLite, one file per environment: `var/data_dev.db` and `var/data_test.db`. The dev database is filled with a small demo catalogue (`src/Shared/Infrastructure/DataFixtures`); the product IDs are fixed, so they survive every reset. The test database stays empty: each test creates the data it needs.
 
 Two containers run: `php` serves the API, `worker` consumes the domain events from a queue table in the same database. Its log is `var/log/domain_events.log`, the general application log is `var/log/dev.log` (both JSON lines); `docker compose logs worker` shows the worker's console output. In the test environment events are handled inline, so the tests need no worker.
 
@@ -101,6 +102,7 @@ Code and configuration with behaviour but without a direct test, and why. There 
 | `Kernel` | Every integration test and Behat scenario boots it | Framework boilerplate |
 | `ProblemDetailsResponse` | The mapper tests, `ApiExceptionSubscriberTest` and the Behat snapshots assert its complete output | A dedicated test would repeat them |
 | No `X-Powered-By` header (`expose_php=0` in the Docker image) | By hand: `curl -I` against the running container shows no such header | Behat calls the kernel in-process and never sees the headers the PHP server adds; a test over real HTTP for one ini setting is not worth it |
+| `ProductFixtures` and `app:fixtures:load` | `make setup`, which CI runs on every push | A fixture that does not load fails the setup; the data itself is demo content without rules |
 | Separate log file `var/log/domain_events.log` | By hand: the worker's messages appear there in dev | The handler exists only in the dev configuration; in test, logging is switched off |
 
 ## Accepted Risks
@@ -136,6 +138,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Persistence | Money as `float` | Integer cents plus currency | No rounding errors |
 | Product | Create, update and delete; `save()` and `delete()` on the repository, `toRecord()` on the mapper | Read-only catalogue: the repository only reads, the mapper only has `toDomain()` | Managing the catalogue is out of scope; products come from fixtures |
 | Domain | Repository interfaces in `Domain/Repository/` | Next to their aggregate in `Domain/Model/` | The port belongs to the aggregate it stores |
+| Fixtures | Loaded by hand, generated IDs | Loaded by `app:db:reset` for dev (`app:fixtures:load`), fixed UUIDs | One command gives a usable API; documented examples keep working |
 | Errors | HTTP status in the domain (`#[ApiException]`) | `#[DomainError]` with a business-level `ErrorType` | The domain knows no HTTP |
 | Errors | `{code, error}` | RFC 9457 Problem Details | Standard format |
 | Errors | Access denied is 403 | Access denied is 404 | No existence leak (R6) |

@@ -25,6 +25,7 @@
     "require-dev": {
         "behat/behat": "^4.0",
         "deptrac/deptrac": "*",
+        "doctrine/doctrine-fixtures-bundle": "^4.3",
         "friendsofphp/php-cs-fixer": "*",
         "opis/json-schema": "^2.6",
         "phpstan/extension-installer": "*",
@@ -108,7 +109,11 @@
             "@app:test",
             "@app:behat"
         ],
-        "app:db:reset": "@php bin/console app:db:reset --env=dev",
+        "app:db:reset": [
+            "@php bin/console app:db:reset --env=dev",
+            "@app:fixtures:load"
+        ],
+        "app:fixtures:load": "@php bin/console doctrine:fixtures:load --env=dev --no-interaction",
         "app:db:reset:test": "@php bin/console app:db:reset --env=test"
     },
     "conflict": {
