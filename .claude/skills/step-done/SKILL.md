@@ -18,7 +18,7 @@ Never commit or push in this skill without the user's explicit approval in this 
 
 ## 3. Docs
 - `docs/plan.md`: tick the finished item; adjust the plan if the step turned out differently.
-- `README.md`: Tech Stack and Setup for new tools or commands, "Design Decisions" for non-obvious choices, "Deviations from the Reference Project" for every deviation.
+- `README.md`: Tech Stack and Setup for new tools or commands, "Design Decisions" for non-obvious choices, "Deviations from the Reference Project" for every deviation, "Deliberately Not Tested" for code or configuration with behaviour that stays without a direct test (`CLAUDE.md`, "Tests").
 - `.claude/rules/*.md` and `CLAUDE.md`: replace "verify at scaffold" notes with what was verified; fix anything the step proved wrong.
 - Run `/qa` again if a doc change touched anything that is checked.
 

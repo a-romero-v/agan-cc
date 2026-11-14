@@ -33,6 +33,7 @@ Start by reading `CLAUDE.md`, `SPEC.md` and the files in `.claude/rules/` that c
 
 **Project bookkeeping**
 - Deviations from the reference project that are missing in `README.md`.
+- New code or configuration with behaviour that has neither a direct test nor a row in the `README.md` section "Deliberately Not Tested"; a row whose coverage claim does not hold; a QA gate without a test of its failure paths.
 - A step finished but not ticked in `docs/plan.md`; rule files that the change made outdated.
 
 ## How to report

@@ -19,6 +19,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 ## M2 – API contract
 - [x] `api-contract/` (base, paths, schemas incl. `ProblemDetails`), `app:openapi:build`, `app:openapi:check-sync`, `bin/validate-openapi`
 - [x] Behat steps validating requests and responses against the contract (`ApiContext`, `OpenApiValidator` with a unit test). No feature yet: there is no endpoint. `app:behat` exists but is not part of `app:qa`
+- [x] Tests for the contract tooling, added after an audit against the rule "tests left out on purpose are documented" (`CLAUDE.md`, "Tests"): `CheckOpenApiSyncCommandTest` and `ValidateOpenApiScriptTest` (failure paths of the two QA gates), `OpenApiBuilderTest` (merge of the fragments). What stays without a direct test is listed with its reason in the README section "Deliberately Not Tested"
 
 ## M3 – Shared kernel
 - [x] Command and query bus ports with in-process adapters (`SymfonyCommandBus`, `SymfonyQueryBus`; the locators in `config/services.yaml` are still empty)

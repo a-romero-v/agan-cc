@@ -124,6 +124,7 @@ Security is a first-class requirement, on a par with the business rules. Details
   - Real Doctrine transport: request, `messenger:consume --limit=1`, assert.
   - Route coverage: every route with `{cartId}` carries `#[IsGranted]` (needs the router, see `.claude/rules/security.md`).
   - The sequential behaviour of the same rules (a second `POST /carts` returns the same cart with 200) stays a Behat scenario.
+- **Tests left out on purpose are documented.** Code or configuration with behaviour may stay without a direct test for two reasons only: a defect would surface loudly through another check, or an automated test is not possible at reasonable cost. Then add a row to the `README.md` section "Deliberately Not Tested" in the same commit: what, what covers it instead (or how it was verified by hand), and why. Code without behaviour (interfaces, markers, enums without methods, attributes) needs no row. A check that guards the others (a QA gate such as `app:openapi:check-sync` or `bin/validate-openapi`) always gets a test of its failure paths, because a gate that always passes fails silently. Never leave a test out silently; if unsure whether the omission is justified, ask.
 - Shared test fixtures: `tests/Shared/Fixture`. Dev fixtures: `src/Shared/Infrastructure/DataFixtures`.
 
 ## Git and commits
