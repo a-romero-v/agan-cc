@@ -6,6 +6,9 @@ RUN apk add --no-cache icu-libs \
     && docker-php-ext-install intl \
     && apk del .build-deps
 
+# Do not advertise the PHP version in an X-Powered-By header.
+RUN echo 'expose_php=0' > "$PHP_INI_DIR/conf.d/app.ini"
+
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app

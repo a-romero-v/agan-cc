@@ -46,7 +46,9 @@ Reads are public. There is no admin role.
 - DTOs whitelist fields. Wrong content type is 415, malformed JSON is 400.
 - An item is always loaded through its cart aggregate, so an `itemId` of another cart is a 404.
 - Stateless: no sessions and no cookies, so no CSRF surface. No CORS bundle unless a browser client is required.
-- All responses send `X-Content-Type-Options: nosniff`.
+- All responses send `X-Content-Type-Options: nosniff` (`SecurityHeadersSubscriber`, error responses included).
+- No `X-Powered-By`: `expose_php=0` is set in the Docker image.
+- 415 and 400 come from `#[MapRequestPayload]` and are mapped by `HttpExceptionMapper` (unit-tested). The first endpoint with a body (M5) adds the Behat scenarios for both.
 - `composer audit` is part of `app:qa`.
 
 ## Threats and how they are handled

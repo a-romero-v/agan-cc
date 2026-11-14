@@ -25,7 +25,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [x] `AbstractDomainException`, `#[DomainError]`, `ErrorType`, exception mappers, Problem Details (4xxx codes). `symfony/validator` added for the 4002 mapping. Left for M5/M6, when Symfony Security arrives: Security's `AccessDeniedException` in `HttpExceptionMapper`, the 401 entry point and the login failure handler
 - [x] `ClockInterface` (`SystemClock`), `UuidGeneratorInterface` (`SymfonyUuidGenerator`, UUID v7, `symfony/uid` added), `TransactionInterface` (from M1), `DomainEvent`. The `AggregateRoot` trait moves to M5: PHPStan rejects a trait that nothing uses (`trait.unused`), so it is added together with `Cart`. Test doubles for the ports (fixed clock, predictable IDs) are added with the first test that needs them
 - [x] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`; tag-based handler registration verified with a fixture handler (`DomainEventDeliveryTest`)
-- [ ] Response hardening (`nosniff`), 415 and 400 handling
+- [x] Response hardening (`nosniff` on every response, `expose_php=0` in the image). 415 and 400 are mapped by `HttpExceptionMapper` (unit-tested in the mapper step); they can only occur end to end once an endpoint has a body, so their Behat scenarios move to M5
 - [ ] First Behat feature (generic errors as Problem Details, e.g. router 404 and 405); add `app:behat` to `app:qa`
 - [ ] Architecture test for the structure and naming conventions (`tests/Unit/Architecture`), verified once with deliberately misplaced classes
 
@@ -41,6 +41,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [ ] `POST /carts` (guest) with cart token, cart-token authenticator, `CartVoter`, route-coverage test (integration suite), 404 for foreign carts (R6)
 - [ ] View cart with totals (AC4, R8)
 - [ ] Add item (AC1), remove item (AC2), change quantity (AC3)
+- [ ] Behat scenarios for 415 (wrong content type) and 400 (malformed JSON) on the first endpoint with a body; `#[MapRequestPayload]` needs `symfony/serializer` (ask before adding)
 
 ## M6 – Registered users and rate limits (AC5, AC7)
 - [ ] `User` context, `POST /auth/login` (JWT), uniform login failure

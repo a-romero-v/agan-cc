@@ -129,6 +129,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Security | JWT keys committed in `config/jwt/` | Generated at setup, git-ignored | No private key in a public repository |
 | Security | JWT only | Additional cart-token authenticator for guests | Anonymous carts |
 | Security | `denyAccessUnlessGranted()` in the method | `#[IsGranted]` on the route | Declarative, checked by a route-coverage test |
+| Security | No hardening headers; PHP sends `X-Powered-By` | `X-Content-Type-Options: nosniff` on every response; `expose_php=0` in the image | A JSON body is never sniffed as HTML; the PHP version is not advertised |
 | Security | `/api` prefix, no rate limiting | No prefix, rate limiting | API-only application; abuse protection |
 | Events | Two publisher adapters (EventDispatcher and Messenger), wrapper message, a subscriber and a Messenger handler class per event | One Messenger adapter, events routed by interface, Application handlers registered by tag | One consumer only; a second adapter would be dead code, and the wrappers add nothing |
 | Events | `DomainEventPublisherInterface` in `Shared/Domain` | In `Shared/Domain/Port` | All ports of the domain live in a `Port` folder |
