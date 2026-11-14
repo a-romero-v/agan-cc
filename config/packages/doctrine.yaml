@@ -15,7 +15,12 @@ doctrine:
         auto_mapping: false
         # One "type: attribute" mapping per bounded context, pointing at <Context>/Infrastructure/Persistence.
         # Added together with the first Record of each context.
-        mappings: {}
+        mappings:
+            Product:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Product/Infrastructure/Persistence'
+                prefix: 'App\Product\Infrastructure\Persistence'
 
 when@prod:
     doctrine:
