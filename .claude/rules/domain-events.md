@@ -14,7 +14,7 @@ One port, one adapter. Kept deliberately small: there is a single consumer (Inve
 
 ## Handlers
 - An event handler is a pure-PHP class in `Application/EventHandler` with `__invoke(ConcreteEvent $event)`. One handler per event type.
-- It is registered as a Messenger handler in `config/services.yaml` with the tag `messenger.message_handler`. No Symfony attribute and no wrapper class, so Application stays framework-free. Verify the tag-based registration at scaffold.
+- It is registered as a Messenger handler in `config/services.yaml` with the tag `messenger.message_handler`. No Symfony attribute and no wrapper class, so Application stays framework-free. Verified in M3: Messenger reads the event type from the `__invoke()` parameter; `DomainEventDeliveryTest` guards the routing by interface and the tag-based registration with a fixture handler registered in `config/services_test.yaml`.
 - There are no `*Subscriber` and no `*MessengerHandler` classes.
 
 ## Rules

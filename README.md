@@ -131,6 +131,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Security | `denyAccessUnlessGranted()` in the method | `#[IsGranted]` on the route | Declarative, checked by a route-coverage test |
 | Security | `/api` prefix, no rate limiting | No prefix, rate limiting | API-only application; abuse protection |
 | Events | Two publisher adapters (EventDispatcher and Messenger), wrapper message, a subscriber and a Messenger handler class per event | One Messenger adapter, events routed by interface, Application handlers registered by tag | One consumer only; a second adapter would be dead code, and the wrappers add nothing |
+| Events | `DomainEventPublisherInterface` in `Shared/Domain` | In `Shared/Domain/Port` | All ports of the domain live in a `Port` folder |
 | Events | Published after `save()` without a transaction | Published inside the transaction | Transactional outbox with the Doctrine transport |
 | Events | AMQP transport, events carry entities | `doctrine://default`, events carry scalars and value objects | No RabbitMQ; events are a stable published language |
 | Stock | Kept on `Product`, reserved asynchronously on `OrderPlaced` | Own `Inventory` context, synchronous, time-limited, versioned reservations | No overselling (R14) |

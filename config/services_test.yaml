@@ -1,0 +1,15 @@
+# Services that exist only in the test environment.
+services:
+    # Registered exactly like the Application event handlers in services.yaml:
+    # a plain class with __invoke(), tagged as a Messenger handler.
+    # Used by DomainEventDeliveryTest.
+    App\Tests\Shared\Fixture\SampleEventHandler:
+        public: true
+        tags: ['messenger.message_handler']
+
+    # The port has no consumer in src/ yet, so the container would drop it.
+    # The alias points at the interface, not at the adapter: the test still
+    # proves which adapter autowiring picks.
+    test.domain_event_publisher:
+        alias: App\Shared\Domain\Port\DomainEventPublisherInterface
+        public: true
