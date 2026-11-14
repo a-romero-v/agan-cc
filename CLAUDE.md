@@ -139,5 +139,5 @@ The history must let reviewers follow the progress and the approach step by step
 - **One logical change per commit.** Separate scaffolding, contract changes, domain, application, infrastructure and refactorings when they stand on their own. Never mix unrelated changes or formatting noise into a feature commit.
 - Every commit leaves `make qa` green.
 - **Conventional Commits** with the context as scope: `feat(cart): add item to cart`. Subject in imperative mood, ≤ 72 characters, no trailing period.
-- **Body is required** for anything non-trivial: what changed and *why*, the chosen approach, trade-offs. Mention when something is taken from or deviates from the reference project.
+- **Body is required** for anything non-trivial: what changed and *why*, the chosen approach, trade-offs. Keep it short. Deviations from the reference project are recorded in the README, not in commit messages.
 - Footer references the spec: `Refs: AC2, R3`.

@@ -32,7 +32,7 @@ Tell the user, briefly and in their language:
 For each commit: the list of files and the full message. Rules from `CLAUDE.md`:
 - One logical change per commit; each commit leaves `make qa` green.
 - Conventional Commits with the context as scope, imperative subject of at most 72 characters, no trailing period.
-- Body: what changed and why, the approach, trade-offs, what was taken from or deviates from the reference project.
+- Body: what changed and why, the approach, trade-offs. Short; no notes about the reference project (they belong in the README).
 - Footer `Refs:` with the AC and rule IDs, when the commit implements some.
 - No `Co-Authored-By` trailer.
 - Everything in English.
