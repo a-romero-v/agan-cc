@@ -64,7 +64,7 @@ Two checks guard it in `make qa`: `app:openapi:check-sync` fails when `docs/open
 
 Behat enforces the contract at runtime: `make behat` runs the acceptance tests as full HTTP round-trips through the kernel. The steps `the request body matches the OpenAPI spec` and `the response matches the OpenAPI spec` validate against `docs/openapi.yaml`. The response step checks the status code, the content type and the body; a status code the operation does not document fails the scenario. `OpenApiValidatorTest` proves that these steps really fail on a deviation. The request step is for valid requests only; a scenario that sends an invalid body on purpose leaves it out.
 
-Behat is part of `make qa`. The first feature (`features/shared/errors.feature`) covers the generic errors; the features of the endpoints and the fixtures follow from M4 on.
+Behat is part of `make qa`. `features/shared/errors.feature` covers the generic errors, `features/<context>/` the endpoints. The database is emptied before every scenario; a scenario creates the data it needs with steps such as `the following products exist:`.
 
 ## Architecture
 
@@ -139,6 +139,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Product | Create, update and delete; `save()` and `delete()` on the repository, `toRecord()` on the mapper | Read-only catalogue: the repository only reads, the mapper only has `toDomain()` | Managing the catalogue is out of scope; products come from fixtures |
 | Domain | Repository interfaces in `Domain/Repository/` | Next to their aggregate in `Domain/Model/` | The port belongs to the aggregate it stores |
 | Fixtures | Loaded by hand, generated IDs | Loaded by `app:db:reset` for dev (`app:fixtures:load`), fixed UUIDs | One command gives a usable API; documented examples keep working |
+| Tests | The Behat reset disables the PostgreSQL triggers and resets the sequences | The ORM purger alone | SQLite and UUID keys need neither |
 | Errors | HTTP status in the domain (`#[ApiException]`) | `#[DomainError]` with a business-level `ErrorType` | The domain knows no HTTP |
 | Errors | `{code, error}` | RFC 9457 Problem Details | Standard format |
 | Errors | Access denied is 403 | Access denied is 404 | No existence leak (R6) |

@@ -14,6 +14,7 @@ return (new Config())
                     ->withPaths(__DIR__ . '/features')
                     ->withContexts(
                         App\Tests\Behat\ApiContext::class,
+                        App\Tests\Behat\DatabaseContext::class,
                     ),
             ),
     );
