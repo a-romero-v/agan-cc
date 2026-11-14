@@ -18,7 +18,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 
 ## M2 – API contract
 - [x] `api-contract/` (base, paths, schemas incl. `ProblemDetails`), `app:openapi:build`, `app:openapi:check-sync`, `bin/validate-openapi`
-- [ ] Behat steps validating requests and responses against the contract
+- [x] Behat steps validating requests and responses against the contract (`ApiContext`, `OpenApiValidator` with a unit test). No feature yet: there is no endpoint. `app:behat` exists but is not part of `app:qa`
 
 ## M3 – Shared kernel
 - [ ] Command and query bus ports with in-process adapters
@@ -26,10 +26,12 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [ ] `ClockInterface`, ID generator, `TransactionInterface`, `AggregateRoot`, `DomainEvent`
 - [ ] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`
 - [ ] Response hardening (`nosniff`), 415 and 400 handling
+- [ ] First Behat feature (generic errors as Problem Details, e.g. router 404 and 405); add `app:behat` to `app:qa`
 - [ ] Architecture test for the structure and naming conventions (`tests/Unit/Architecture`), verified once with deliberately misplaced classes
 
 ## M4 – Product
 - [ ] `Product`, `Money`, `TaxRate`, repository, fixtures
+- [ ] `tests/Behat/DatabaseContext` (reset per scenario, rewritten for SQLite) and the data setup steps
 - [ ] `GET /products`, `GET /products/{productId}`
 
 ## M5 – Cart core for guests (AC1–AC4, guest part of AC5)

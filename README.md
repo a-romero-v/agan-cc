@@ -21,6 +21,7 @@ A shopping cart REST API built with Symfony. It demonstrates hexagonal architect
 | Logging | Monolog |
 
 | PHPUnit | 13 |
+| Behat | 4 (acceptance tests), with `opis/json-schema` for the contract validation |
 | PHPStan | 2 (level 8, with the Symfony extension) |
 | Deptrac | 4 |
 | PHP-CS-Fixer | 3 (`@Symfony` plus `declare_strict_types`) |
@@ -60,7 +61,9 @@ The API is designed contract-first. The source is `api-contract/`: `base.yaml` (
 
 Two checks guard it in `make qa`: `app:openapi:check-sync` fails when `docs/openapi.yaml` differs from what the fragments produce, and `app:validate:openapi` checks the structure of the generated file (required fields, unique operation IDs, resolvable `$ref`s, defined security schemes).
 
-_Fixtures and Behat follow in the next steps._
+Behat enforces the contract at runtime: `make behat` runs the acceptance tests as full HTTP round-trips through the kernel. The steps `the request body matches the OpenAPI spec` and `the response matches the OpenAPI spec` validate against `docs/openapi.yaml`. The response step checks the status code, the content type and the body; a status code the operation does not document fails the scenario. `OpenApiValidatorTest` proves that these steps really fail on a deviation. The request step is for valid requests only; a scenario that sends an invalid body on purpose leaves it out.
+
+_The first features arrive with the first endpoints (M3); Behat joins `make qa` then. Fixtures follow in M4._
 
 ## Architecture
 
@@ -104,6 +107,9 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | API contract | Every operation spells out its error responses; path parameters are repeated | Shared `components.responses`, `parameters` and `headers` in `base.yaml`, referenced from the operations | Eight operations share the same error bodies; one definition keeps them identical |
 | API contract | One `bearerAuth` scheme, `security: []` globally | Two bearer schemes (`cartToken`, `jwt`) required globally; public operations opt out with `security: []` | Deny by default, also in the contract |
 | Tooling | `$projectDir` of the OpenAPI commands wired in `services.yaml` | `#[Autowire('%kernel.project_dir%')]` on the constructor | Same style as `ResetDatabaseCommand`; no service definitions needed |
+| Tests | Behat `4.x-dev` | Behat `^4.0` | A stable release exists now; `minimum-stability` stays `stable` |
+| Tests | The contract steps skip silently when the status code or the content type is not in the contract | Undocumented status code, undocumented content type and a body where none is documented fail the scenario; `$ref`s to shared responses are resolved | A skipped check looks like a passed one. Covered by `OpenApiValidatorTest` |
+| Tests | One Behat step per HTTP method | One step with the method as argument (`I send a :method request to :url`) | Same wording in the features, less code |
 | Database | PostgreSQL | SQLite | No extra service; persistence stays swappable |
 | Database | `app:db:reset` drops and re-creates the database | Drops all tables through the DBAL schema manager | DBAL cannot drop a SQLite database; dropping tables works on every platform |
 | Persistence | Auto-increment `int` plus `uuid` column | UUID primary key | One identity, generated before persisting |

@@ -21,13 +21,16 @@
         "symfony/yaml": "8.1.*"
     },
     "require-dev": {
+        "behat/behat": "^4.0",
         "deptrac/deptrac": "*",
         "friendsofphp/php-cs-fixer": "*",
+        "opis/json-schema": "^2.6",
         "phpstan/extension-installer": "*",
         "phpstan/phpstan": "*",
         "phpstan/phpstan-doctrine": "^2.1",
         "phpstan/phpstan-symfony": "*",
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": "*",
+        "symfony/browser-kit": "8.1.*"
     },
     "config": {
         "allow-plugins": {
@@ -86,6 +89,10 @@
         "app:test:unit": "php bin/phpunit --testsuite unit",
         "app:test:integration": "php bin/phpunit --testsuite integration",
         "app:test:clear:cache": "@php bin/console cache:clear --env=test",
+        "app:behat": [
+            "@putenv APP_ENV=test",
+            "vendor/bin/behat --colors"
+        ],
         "app:openapi:build": "@php bin/console app:openapi:build",
         "app:openapi:check-sync": "@php bin/console app:openapi:check-sync",
         "app:validate:openapi": "@php bin/validate-openapi docs/openapi.yaml",

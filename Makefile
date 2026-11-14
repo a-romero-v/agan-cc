@@ -5,7 +5,7 @@ COMPOSE = docker compose
 EXEC    = $(COMPOSE) exec php
 
 .DEFAULT_GOAL := help
-.PHONY: help setup up down shell db-reset qa test analyse deptrac cs-fix openapi
+.PHONY: help setup up down shell db-reset qa test behat analyse deptrac cs-fix openapi
 
 help: ## List the available targets
 	@grep -E '^[a-zA-Z_-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  %-10s %s\n", $$1, $$2}'
@@ -37,6 +37,9 @@ qa: ## Run all checks (must be green before a task counts as done)
 
 test: ## Run PHPUnit
 	$(EXEC) composer app:test
+
+behat: ## Run the Behat acceptance tests
+	$(EXEC) composer app:behat
 
 analyse: ## Run PHPStan
 	$(EXEC) composer app:analyse
