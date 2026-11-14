@@ -12,18 +12,30 @@ use Psr\Container\ContainerInterface;
  * (command class => handler, see config/services.yaml) and calls handle().
  *
  * No Messenger involved: commands run synchronously inside the request.
+ *
+ * A missing or malformed handler is a wiring mistake, not a runtime
+ * condition, hence the LogicException (which ends as a 500).
  */
 final readonly class SymfonyCommandBus implements CommandBusInterface
 {
-    private HandlerLocator $handlers;
-
-    public function __construct(ContainerInterface $locator)
+    public function __construct(private ContainerInterface $locator)
     {
-        $this->handlers = new HandlerLocator($locator);
     }
 
     public function dispatch(object $command): void
     {
-        $this->handlers->handlerFor($command)($command);
+        $class = $command::class;
+
+        if (!$this->locator->has($class)) {
+            throw new \LogicException(\sprintf('No handler registered for "%s".', $class));
+        }
+
+        $handler = $this->locator->get($class);
+
+        if (!\is_object($handler) || !method_exists($handler, 'handle')) {
+            throw new \LogicException(\sprintf('The handler registered for "%s" has no handle() method.', $class));
+        }
+
+        $handler->handle($command);
     }
 }
