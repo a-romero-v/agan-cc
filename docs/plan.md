@@ -42,6 +42,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 
 ## M6 – Registered users and rate limits (AC5, AC7)
 - [ ] `User` context, `POST /auth/login` (JWT), uniform login failure
+- [ ] JWT key pair generated in `make setup` through a Composer script (`lexik:jwt:generate-keypair --skip-if-exists`), git-ignored, no passphrase; the test environment and CI get it through `make setup`. Check that the tracked `.env*` files hold no real secret
 - [ ] JWT authenticator, mutually exclusive with the cart-token authenticator
 - [ ] One cart per user (R7): Behat for the sequential case, integration tests with two processes and for the unique-violation safety net
 - [ ] Rate limiters: login, guest cart creation, failed token authentication (AC7)
