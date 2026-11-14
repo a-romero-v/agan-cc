@@ -140,6 +140,7 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Domain | Repository interfaces in `Domain/Repository/` | Next to their aggregate in `Domain/Model/` | The port belongs to the aggregate it stores |
 | Fixtures | Loaded by hand, generated IDs | Loaded by `app:db:reset` for dev (`app:fixtures:load`), fixed UUIDs | One command gives a usable API; documented examples keep working |
 | Tests | The Behat reset disables the PostgreSQL triggers and resets the sequences | The ORM purger alone | SQLite and UUID keys need neither |
+| HTTP | Controllers extend `AbstractController` | Plain `#[AsController]` classes returning `JsonResponse` | The base class offers nothing these controllers use |
 | Errors | HTTP status in the domain (`#[ApiException]`) | `#[DomainError]` with a business-level `ErrorType` | The domain knows no HTTP |
 | Errors | `{code, error}` | RFC 9457 Problem Details | Standard format |
 | Errors | Access denied is 403 | Access denied is 404 | No existence leak (R6) |

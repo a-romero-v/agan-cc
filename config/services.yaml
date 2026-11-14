@@ -34,4 +34,6 @@ services:
     App\Shared\Application\Bus\QueryBusInterface:
         class: App\Shared\Infrastructure\Bus\SymfonyQueryBus
         arguments:
-            $locator: !service_locator {}
+            $locator: !service_locator
+                App\Product\Application\Query\GetProduct\GetProductQuery: '@App\Product\Application\Query\GetProduct\GetProductHandler'
+                App\Product\Application\Query\ListProducts\ListProductsQuery: '@App\Product\Application\Query\ListProducts\ListProductsHandler'

@@ -7,9 +7,7 @@ namespace App\Tests\Integration\Product\Infrastructure\Persistence;
 use App\Product\Domain\Model\Product;
 use App\Product\Domain\Model\ProductId;
 use App\Product\Domain\Model\ProductRepositoryInterface;
-use App\Product\Infrastructure\Persistence\ProductMapper;
 use App\Product\Infrastructure\Persistence\ProductRecord;
-use App\Product\Infrastructure\Persistence\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -28,9 +26,9 @@ final class ProductRepositoryTest extends KernelTestCase
 
     protected function setUp(): void
     {
-        $this->em = self::getContainer()->get(EntityManagerInterface::class);
-        // Built by hand: until a handler uses the port, the container removes the unused service.
-        $this->repository = new ProductRepository($this->em, new ProductMapper());
+        $container = self::getContainer();
+        $this->em = $container->get(EntityManagerInterface::class);
+        $this->repository = $container->get(ProductRepositoryInterface::class);
 
         $this->em->getConnection()->executeStatement('DELETE FROM product');
     }
