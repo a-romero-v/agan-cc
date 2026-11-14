@@ -21,7 +21,7 @@ Items marked "verify at scaffold" in `.claude/rules/` are verified in the milest
 - [x] Behat steps validating requests and responses against the contract (`ApiContext`, `OpenApiValidator` with a unit test). No feature yet: there is no endpoint. `app:behat` exists but is not part of `app:qa`
 
 ## M3 – Shared kernel
-- [ ] Command and query bus ports with in-process adapters
+- [x] Command and query bus ports with in-process adapters (`SymfonyCommandBus`, `SymfonyQueryBus`; the locators in `config/services.yaml` are still empty)
 - [ ] `AbstractDomainException`, `#[DomainError]`, `ErrorType`, exception mappers, Problem Details (4xxx codes)
 - [ ] `ClockInterface`, ID generator, `TransactionInterface`, `AggregateRoot`, `DomainEvent`
 - [ ] Domain event publisher port with the Messenger adapter, routing by `DomainEvent`

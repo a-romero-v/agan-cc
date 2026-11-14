@@ -110,6 +110,8 @@ Reference: <https://github.com/a-romero-v/sample-hexagonal-api>. Every deviation
 | Tests | Behat `4.x-dev` | Behat `^4.0` | A stable release exists now; `minimum-stability` stays `stable` |
 | Tests | The contract steps skip silently when the status code or the content type is not in the contract | Undocumented status code, undocumented content type and a body where none is documented fail the scenario; `$ref`s to shared responses are resolved | A skipped check looks like a passed one. Covered by `OpenApiValidatorTest` |
 | Tests | One Behat step per HTTP method | One step with the method as argument (`I send a :method request to :url`) | Same wording in the features, less code |
+| CQRS | `CommandBusInterface::dispatch()` returns `mixed` | Returns `void` | Commands change state and return nothing; a controller that needs a body asks a query |
+| CQRS | Each bus repeats the handler lookup and calls `handle()` on an untyped service; a missing handler is a `RuntimeException` | Shared `HandlerLocator` that checks the handler; wiring mistakes are `LogicException`s | One lookup instead of two copies, and it passes PHPStan level 8 without an ignore |
 | Database | PostgreSQL | SQLite | No extra service; persistence stays swappable |
 | Database | `app:db:reset` drops and re-creates the database | Drops all tables through the DBAL schema manager | DBAL cannot drop a SQLite database; dropping tables works on every platform |
 | Persistence | Auto-increment `int` plus `uuid` column | UUID primary key | One identity, generated before persisting |

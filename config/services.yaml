@@ -23,3 +23,15 @@ services:
     # DBAL ships this middleware but does not register it by default.
     Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys:
         tags: ['doctrine.middleware']
+
+    # In-process buses (no Messenger). Each locator maps a command or query class
+    # to its handler; a new use case adds one line here.
+    App\Shared\Application\Bus\CommandBusInterface:
+        class: App\Shared\Infrastructure\Bus\SymfonyCommandBus
+        arguments:
+            $locator: !service_locator {}
+
+    App\Shared\Application\Bus\QueryBusInterface:
+        class: App\Shared\Infrastructure\Bus\SymfonyQueryBus
+        arguments:
+            $locator: !service_locator {}
